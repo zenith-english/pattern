@@ -16,6 +16,18 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none; /* 텍스트 선택 방지 */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* 입력 필드는 선택 허용 */
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         
         :root {
@@ -199,7 +211,7 @@
             background: white;
             box-shadow: var(--shadow-xl);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             border-radius: 24px;
         }
         
@@ -242,31 +254,24 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
         }
         
-        .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .logo-text {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.375rem;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        
+        .logo-svg {
+			display: block;
+			height: auto;
+		}
+				
+        .logo-text::before {
+			content: '';
+			position: absolute;
+			bottom: -2px;
+			left: 0;
+			width: 60%;
+			height: 3px;
+			background: var(--primary); /* 그라데이션 대신 단색 사용 */
+			border-radius: 2px;
+		}
+				
         .date-badge {
             background: var(--surface);
             padding: 10px 20px;
@@ -302,22 +307,22 @@
             margin-bottom: 30px; /* 간격 축소 */
             position: relative;
             z-index: 1;
-            overflow-y: auto; /* 스크롤 가능 */
+            overflow: visible; /* auto에서 visible로 변경 */
             max-height: calc(100% - 300px); /* 헤더와 푸터를 제외한 공간 */
         }
         
-        /* 카드 크기 자동 조절 - 예제 숨김 상태 고려 */
+        /* 패턴 카드 - overflow visible로 변경 */
         .pattern-card {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            padding: 24px 28px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+			background: var(--surface);
+			border: 2px solid var(--border);
+			border-radius: 20px;
+			padding: 50px 28px 24px 28px; /* 상단 패딩만 증가 */
+			transition: all 0.3s ease;
+			position: relative;
+			overflow: visible;
+			display: flex;
+			flex-direction: column;
+		}
         
         .pattern-card.size-small {
             min-height: 140px;
@@ -413,26 +418,203 @@
             gap: 16px;
             margin-bottom: 20px;
             position: relative;
+            justify-content: space-between; /* 날짜를 오른쪽으로 배치 */
+        }
+        
+        /* 예제 보이는 상태에서도 헤더 숨기기 */
+        .pattern-card .pattern-header {
+            display: none;
+        }
+        
+        /* 날짜 입력 영역을 카드 좌상단에 절대 위치로 배치 */
+        .pattern-date-section {
+			position: absolute;
+			top: 12px;
+			left: 12px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			z-index: 100;
+			width: auto;
+			max-width: 180px;
+}
+        
+        .pattern-date-input {
+			background: white;
+			border: 2px solid var(--border);
+			border-radius: 8px;
+			padding: 8px 10px;
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: var(--text);
+			width: 130px;
+			height: 45px;
+			text-align: left;
+			font-family: 'Inter', sans-serif;
+			transition: all 0.2s ease;
+			white-space: nowrap;
+			overflow: visible;
+			text-overflow: clip;
+			box-sizing: border-box;
+		}
+        
+        .pattern-date-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .pattern-date-input:hover {
+            border-color: var(--primary);
+        }
+        
+        .calendar-btn {
+			background: var(--surface);
+			border: 2px solid var(--border);
+			border-radius: 6px;
+			padding: 3px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 26px;
+			height: 26px;
+		}
+				
+        .calendar-btn:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+        
+        .calendar-btn svg {
+            width: 14px;
+            height: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .calendar-btn:hover svg {
+            color: var(--primary);
+        }
+        
+        /* 캘린더 드롭다운 */
+		.calendar-dropdown {
+		  display: none;
+		  position: fixed;
+		  top: 50%;
+		  left: 50%;
+		  transform: translate(-50%, -50%);  /* 화면 정중앙 */
+		  z-index: 4000;
+		  background: white;
+		  border: 2px solid var(--border);
+		  border-radius: 12px;
+		  padding: 16px;
+		  box-shadow: var(--shadow-xl);
+		  min-width: 280px;
+		}
+		.calendar-dropdown.show {
+		  display: block;
+		}
+        
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .calendar-nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: var(--surface);
+        }
+        
+        .calendar-nav-btn svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .calendar-month-year {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 8px 4px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 0.813rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calendar-day:hover {
+            background: var(--surface);
+        }
+        
+        .calendar-day.today {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .calendar-day.selected {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .calendar-day.other-month {
+            color: var(--text-secondary);
+            opacity: 0.5;
         }
         
         .pattern-delete-btn {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: var(--danger);
-            color: white;
-            border: none;
-            font-size: 0.625rem;
-            font-weight: 500;
-            padding: 2px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            opacity: 0;
-            transition: all 0.2s ease;
-            z-index: 10;
-            font-family: 'Inter', sans-serif;
-            line-height: 1;
-        }
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			background: var(--danger);
+			color: white;
+			border: none;
+			font-size: 0.625rem;
+			font-weight: 500;
+			padding: 2px 6px;
+			border-radius: 4px;
+			cursor: pointer;
+			opacity: 0;
+			transition: all 0.2s ease;
+			z-index: 110;
+			font-family: 'Inter', sans-serif;
+			line-height: 1;
+		}
         
         .pattern-card:hover .pattern-delete-btn {
             opacity: 1;
@@ -867,7 +1049,12 @@
             font-weight: 500;
         }
         
-        /* 프린트 스타일 */
+        /* 프린트 및 스크린샷 시 캘린더 버튼 숨김 */
+        @media print, screen {
+            .calendar-btn.hide-for-export {
+                display: none !important;
+            }
+        }
         @media print {
             body {
                 background: white;
@@ -1004,13 +1191,19 @@
                 
                 <!-- 헤더 -->
                 <div class="header">
-                    <div class="header-top">
-                        <div class="logo">
-                            <div class="logo-icon">⭐</div>
-                            <div class="logo-text">ZENITH ENGLISH</div>
-                        </div>
-                        <div class="date-badge" id="date-badge"></div>
-                    </div>
+                    <div class="logo">
+					<div class="date-badge" id="date-badge"></div>
+					<svg width="220" height="35" viewBox="0 0 220 35" class="logo-svg">
+						<defs>
+							<linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+								<stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+								<stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+							</linearGradient>
+						</defs>
+						<text x="0" y="24" font-family="Poppins, sans-serif" font-size="20" font-weight="800" fill="url(#logoGradient)" letter-spacing="1">ZENITH ENGLISH</text>
+						<rect x="0" y="28" width="110" height="3" fill="url(#logoGradient)" rx="1.5"/>
+					</svg>
+				</div>
                     
                     <h1 class="main-title" id="main-title">This Week's English<br>Pattern Practice</h1>
                     <p class="subtitle">Master these patterns and expand your English!</p>
@@ -1070,32 +1263,109 @@
         let patterns = [];
         let patternCounter = 0;
         let examplesVisible = false; // 예제 표시 상태를 전역적으로 관리
+		
+		let activeCalendar = null;
+        let currentCalendarDate = new Date();
+        
+        // XSS 방지를 위한 HTML 이스케이프 함수
+        function escapeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // XSS 방지를 위한 입력값 검증 및 정화
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return '';
+            
+            // 위험한 문자열 패턴 제거
+            const dangerousPatterns = [
+                /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+                /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
+                /javascript:/gi,
+                /on\w+\s*=/gi,
+                /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,
+                /<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi,
+                /<link\b[^>]*>/gi,
+                /<meta\b[^>]*>/gi,
+                /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi
+            ];
+            
+            let sanitized = input;
+            dangerousPatterns.forEach(pattern => {
+                sanitized = sanitized.replace(pattern, '');
+            });
+            
+            // HTML 엔티티로 변환
+            return escapeHTML(sanitized).substring(0, 500); // 길이 제한도 적용
+        }
+        
+        // 날짜 포맷팅 유틸리티 함수들
+        function formatDateToYYMMDD(date) {
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dayOfWeek = dayNames[date.getDay()];
+            
+            return `${year}.${month}.${day} (${dayOfWeek})`;
+        }
+        
+        function parseYYMMDDToDate(dateStr) {
+            // 요일 부분 제거 - 괄호와 그 안의 내용을 제거
+            const dateOnly = dateStr.split(' ')[0];
+            const parts = dateOnly.split('.');
+            if (parts.length !== 3) return new Date();
+            
+            const year = 2000 + parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const day = parseInt(parts[2]);
+            
+            return new Date(year, month, day);
+        }
+        
+        function validateDateFormat(dateStr) {
+            // 요일이 포함된 형식과 포함되지 않은 형식 둘 다 허용
+            const regexWithDay = /^\d{2}\.\d{2}\.\d{2} \([A-Za-z]{3}\)$/;
+            const regexWithoutDay = /^\d{2}\.\d{2}\.\d{2}$/;
+            
+            if (!regexWithDay.test(dateStr) && !regexWithoutDay.test(dateStr)) {
+                return false;
+            }
+            
+            const date = parseYYMMDDToDate(dateStr);
+            return !isNaN(date.getTime());
+        }
         
         // 날짜 업데이트 - 주간으로 변경
         function updateDate() {
-            const now = new Date();
-            const startOfWeek = new Date(now);
-            startOfWeek.setDate(now.getDate() - now.getDay()); // 일요일을 주 시작으로
-            
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
-            
-            const options = { month: 'short', day: 'numeric' };
-            const startStr = startOfWeek.toLocaleDateString('en-US', options);
-            const endStr = endOfWeek.toLocaleDateString('en-US', options);
-            const year = now.getFullYear();
-            
-            document.getElementById('date-badge').textContent = `${startStr} - ${endStr}, ${year}`;
-        }
+		  const now = new Date();
+		  const startOfWeek = new Date(now);
+		  startOfWeek.setDate(now.getDate() - now.getDay()); // Sun 시작
+		  const endOfWeek = new Date(startOfWeek);
+		  endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+		  const options = { month: 'short', day: 'numeric' };
+		  const startStr = startOfWeek.toLocaleDateString('en-US', options);
+		  const endStr = endOfWeek.toLocaleDateString('en-US', options);
+		  const year = now.getFullYear();
+
+		  const badge = document.getElementById('date-badge');
+		  if (badge) badge.textContent = `${startStr} - ${endStr}, ${year}`;
+		}
         
-        // 텍스트에서 [] 를 네모 박스로 변환 (공백 개수로 크기 결정)
+        // 텍스트에서 [] 를 네모 박스로 변환 (공백 개수로 크기 결정) - XSS 방지 적용
         function processBlankBoxes(text, isTitle = false) {
             if (isTitle) {
-                return text; // 제목에서는 변환하지 않음
+                return escapeHTML(text); // 제목에서는 HTML 이스케이프만 적용
             }
             
+            // 먼저 입력값을 정화
+            const sanitizedText = sanitizeInput(text);
+            
             // [공백들] 패턴을 찾아서 공백 개수에 따라 박스 크기 조절
-            return text.replace(/\[(\s*)\]/g, function(match, spaces) {
+            return sanitizedText.replace(/\[(\s*)\]/g, function(match, spaces) {
                 const spaceCount = spaces.length;
                 let sizeClass = '';
                 
@@ -1188,10 +1458,6 @@
                 const card = createPatternCard(pattern, index + 1);
                 grid.appendChild(card);
                 
-                // 카드 크기 자동 조절
-                setTimeout(() => {
-                    adjustCardSize(pattern.id);
-                }, 50);
             });
             
             // 예제 표시 상태 적용
@@ -1213,7 +1479,36 @@
             card.innerHTML = `
                 <button class="pattern-delete-btn" onclick="deletePattern(${pattern.id})" title="Delete pattern">Del</button>
                 
-                <div class="pattern-header">
+                <!-- 날짜 입력 영역 - 절대 위치로 우상단에 배치 -->
+                <div class="pattern-date-section">
+                    <input type="text" 
+                           class="pattern-date-input" 
+                           id="pattern-date-${pattern.id}"
+                           value="${pattern.date || ''}"
+                           placeholder="YY.MM.DD (Day)"
+                           onblur="saveDatePattern(${pattern.id})"
+                           onkeydown="handleDateKeydown(event, ${pattern.id})">
+                    <button class="calendar-btn" onclick="toggleCalendar(${pattern.id})">
+                        <svg fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5 0zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                    </button>
+                    <div class="calendar-dropdown" id="calendar-${pattern.id}">
+                        <div class="calendar-header">
+                            <button class="calendar-nav-btn" onclick="navigateCalendar(${pattern.id}, -1)">
+                                <svg fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                            </button>
+                            <div class="calendar-month-year" id="calendar-header-${pattern.id}"></div>
+                            <button class="calendar-nav-btn" onclick="navigateCalendar(${pattern.id}, 1)">
+                                <svg fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid-${pattern.id}"></div>
+                    </div>
                 </div>
                 
                 <div class="pattern-input-group">
@@ -1326,7 +1621,155 @@
             }
         }
         
-        // Examples 섹션 토글 (개선된 버전)
+        // 날짜 저장
+        function saveDatePattern(id) {
+            const input = document.getElementById(`pattern-date-${id}`);
+            const pattern = patterns.find(p => p.id === id);
+            
+            if (pattern) {
+                const dateValue = input.value.trim();
+                if (dateValue === '' || validateDateFormat(dateValue)) {
+                    pattern.date = dateValue;
+                } else {
+                    // 잘못된 형식일 경우 이전 값으로 복원
+                    input.value = pattern.date || '';
+                    alert('날짜 형식이 올바르지 않습니다. YY.MM.DD 형식으로 입력해주세요. (예: 25.08.25)');
+                }
+            }
+        }
+		
+		function handleDateKeydown(e, id) {
+		  if (e.key === 'Enter') { e.preventDefault(); saveDatePattern(id); }
+		  if (e.key === 'Escape') { e.preventDefault(); e.target.blur(); }
+		}
+        
+        // 날짜 입력 키 핸들링
+        function toggleCalendar(id) {
+		  const calendar = document.getElementById(`calendar-${id}`);
+		  const wasVisible = calendar.classList.contains('show');
+
+		  // 모든 캘린더 닫기
+		  document.querySelectorAll('.calendar-dropdown').forEach(cal => cal.classList.remove('show'));
+
+		  if (!wasVisible) {
+			activeCalendar = id;
+			const pattern = patterns.find(p => p.id === id);
+
+			// 기준 날짜 세팅
+			if (pattern?.date && validateDateFormat(pattern.date)) {
+			  currentCalendarDate = parseYYMMDDToDate(pattern.date);
+			} else {
+			  currentCalendarDate = new Date();
+			}
+			renderCalendar(id);
+
+			// 중앙에 띄우기
+			calendar.classList.add('show');
+		  } else {
+			activeCalendar = null;
+		  }
+		}
+
+        
+        // 캘린더 렌더링
+        function renderCalendar(id) {
+            const headerElement = document.getElementById(`calendar-header-${id}`);
+            const gridElement = document.getElementById(`calendar-grid-${id}`);
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            // 헤더 업데이트
+            headerElement.textContent = `${monthNames[currentCalendarDate.getMonth()]} ${currentCalendarDate.getFullYear()}`;
+            
+            // 그리드 클리어
+            gridElement.innerHTML = '';
+            
+            // 요일 헤더 추가
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                gridElement.appendChild(dayHeader);
+            });
+            
+            // 달력 날짜 생성
+            const firstDay = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
+            const lastDay = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            const today = new Date();
+            const pattern = patterns.find(p => p.id === id);
+            let selectedDate = null;
+            
+            if (pattern.date && validateDateFormat(pattern.date)) {
+                selectedDate = parseYYMMDDToDate(pattern.date);
+            }
+            
+            // 6주간의 날짜 생성
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = date.getDate();
+                
+                // 클래스 설정
+                if (date.getMonth() !== currentCalendarDate.getMonth()) {
+                    dayElement.classList.add('other-month');
+                }
+                
+                if (date.toDateString() === today.toDateString()) {
+                    dayElement.classList.add('today');
+                }
+                
+                if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
+                    dayElement.classList.add('selected');
+                }
+                
+                // 클릭 이벤트
+                dayElement.addEventListener('click', () => selectDate(id, date));
+                
+                gridElement.appendChild(dayElement);
+            }
+        }
+        
+        // 캘린더 네비게이션
+        function navigateCalendar(id, direction) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+            renderCalendar(id);
+        }
+        
+        // 날짜 선택
+        function selectDate(id, date) {
+            const pattern = patterns.find(p => p.id === id);
+            const input = document.getElementById(`pattern-date-${id}`);
+            
+            if (pattern) {
+                pattern.date = formatDateToYYMMDD(date);
+                input.value = pattern.date;
+            }
+            
+            // 캘린더 닫기
+            toggleCalendar(id);
+        }
+        
+        // 캘린더 외부 클릭으로 닫기
+        document.addEventListener('click', function(event) {
+            if (activeCalendar !== null) {
+                const calendarElement = document.getElementById(`calendar-${activeCalendar}`);
+                const calendarBtn = event.target.closest('.calendar-btn');
+                const isInsideCalendar = event.target.closest('.calendar-dropdown');
+                
+                if (!calendarBtn && !isInsideCalendar) {
+                    calendarElement.classList.remove('show');
+                    activeCalendar = null;
+                }
+            }
+        });
         function toggleExamples() {
             // 전역 상태 변경
             examplesVisible = !examplesVisible;
@@ -1368,10 +1811,14 @@
             }
             
             patternCounter++;
+            const today = new Date();
+            const defaultDate = formatDateToYYMMDD(today);
+            
             const newPattern = {
                 id: patternCounter,
                 pattern: '',
-                examples: ''
+                examples: '',
+                date: defaultDate
             };
             
             patterns.push(newPattern);
@@ -1423,95 +1870,94 @@
         
         // 파일 저장 (PDF 또는 PNG)
         async function saveAs(format) {
-            closeSaveModal();
-            
-            const today = new Date();
-            const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-            const filename = `ZENITH_English_Weekly_Pattern_${dateStr}`;
-            
-            const loadingOverlay = document.getElementById('loading-overlay');
-            const loadingText = document.querySelector('.loading-text');
-            
-            if (format === 'pdf') {
-                loadingText.textContent = 'Generating PDF...';
-            } else {
-                loadingText.textContent = 'Generating PNG...';
-            }
-            
-            loadingOverlay.style.display = 'flex';
-            
-            try {
-                const element = document.getElementById('poster-container');
-                const dateBadge = document.getElementById('date-badge');
-                
-                // 날짜 배지만 임시로 숨김
-                const originalDisplay = dateBadge.style.display;
-                dateBadge.style.display = 'none';
-                
-                // 임시로 border-radius 제거 (렌더링 최적화)
-                element.style.borderRadius = '0';
-                
-                const canvas = await html2canvas(element, {
-                    scale: 3, // 고해상도
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    windowWidth: element.scrollWidth,
-                    windowHeight: element.scrollHeight,
-                    scrollY: -window.scrollY,
-                    scrollX: -window.scrollX,
-                    letterRendering: true,
-                    allowTaint: false,
-                    foreignObjectRendering: false
-                });
-                
-                // 날짜 배지 표시 복원
-                dateBadge.style.display = originalDisplay;
-                // border-radius 복원
-                element.style.borderRadius = '24px';
-                
-                if (format === 'pdf') {
-                    // PDF 저장
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4',
-                        compress: true
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png', 1.0);
-                    
-                    // A4 크기에 정확히 맞추기
-                    const pdfWidth = 210;
-                    const pdfHeight = 297;
-                    
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save(`${filename}.pdf`);
-                    
-                    alert(`PDF가 ${filename}.pdf로 저장되었습니다!`);
-                } else {
-                    // PNG 저장
-                    const link = document.createElement('a');
-                    link.download = `${filename}.png`;
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    
-                    // 임시로 DOM에 추가하여 클릭
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    alert(`PNG가 ${filename}.png로 저장되었습니다!`);
-                }
-            } catch (error) {
-                console.error(`${format.toUpperCase()} 생성 오류:`, error);
-                alert(`${format.toUpperCase()} 생성 중 오류가 발생했습니다.`);
-            } finally {
-                loadingOverlay.style.display = 'none';
-            }
-        }
-        
-        /* 기존 saveToPDF 함수는 제거하고 위의 saveAs 함수로 대체 */
+			closeSaveModal();
+			
+			const today = new Date();
+			const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+			const filename = `ZENITH_English_Weekly_Pattern_${dateStr}`;
+			
+			const loadingOverlay = document.getElementById('loading-overlay');
+			const loadingText = document.querySelector('.loading-text');
+			
+			if (format === 'pdf') {
+				loadingText.textContent = 'Generating PDF...';
+			} else {
+				loadingText.textContent = 'Generating PNG...';
+			}
+			
+			loadingOverlay.style.display = 'flex';
+			
+			try {
+				const element = document.getElementById('poster-container');
+				
+				// 날짜 배지는 없으므로 제거
+				
+				// 모든 캘린더 버튼 숨김 (PDF/PNG 저장 시)
+				const calendarButtons = document.querySelectorAll('.calendar-btn');
+				calendarButtons.forEach(btn => btn.classList.add('hide-for-export'));
+				
+				// 임시로 border-radius 제거 (렌더링 최적화)
+				element.style.borderRadius = '0';
+				
+				const canvas = await html2canvas(element, {
+					scale: 3, // 고해상도
+					useCORS: true,
+					logging: false,
+					backgroundColor: '#ffffff',
+					windowWidth: element.scrollWidth,
+					windowHeight: element.scrollHeight,
+					scrollY: -window.scrollY,
+					scrollX: -window.scrollX,
+					letterRendering: true,
+					allowTaint: false,
+					foreignObjectRendering: false
+				});
+				
+				// 캘린더 버튼 다시 표시
+				calendarButtons.forEach(btn => btn.classList.remove('hide-for-export'));
+				// border-radius 복원
+				element.style.borderRadius = '24px';
+				
+				if (format === 'pdf') {
+					// PDF 저장
+					const { jsPDF } = window.jspdf;
+					const pdf = new jsPDF({
+						orientation: 'portrait',
+						unit: 'mm',
+						format: 'a4',
+						compress: true
+					});
+					
+					const imgData = canvas.toDataURL('image/png', 1.0);
+					
+					// A4 크기에 정확히 맞추기
+					const pdfWidth = 210;
+					const pdfHeight = 297;
+					
+					pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+					pdf.save(`${filename}.pdf`);
+					
+					alert(`PDF가 ${filename}.pdf로 저장되었습니다!`);
+				} else {
+					// PNG 저장
+					const link = document.createElement('a');
+					link.download = `${filename}.png`;
+					link.href = canvas.toDataURL('image/png', 1.0);
+					
+					// 임시로 DOM에 추가하여 클릭
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					
+					alert(`PNG가 ${filename}.png로 저장되었습니다!`);
+				}
+			} catch (error) {
+				console.error(`${format.toUpperCase()} 생성 오류:`, error);
+				alert(`${format.toUpperCase()} 생성 중 오류가 발생했습니다.`);
+			} finally {
+				loadingOverlay.style.display = 'none';
+			}
+		}
         
         // 초기화
         updateDate();
@@ -1519,6 +1965,59 @@
         
         // 첫 패턴 자동 추가
         addPattern();
+        
+        // 마우스 우클릭 방지
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+        
+        // 개발자 도구 키보드 단축키 방지
+        document.addEventListener('keydown', function(event) {
+            // F12 방지
+            if (event.key === 'F12') {
+                event.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+Shift+I 방지 (개발자 도구)
+            if (event.ctrlKey && event.shiftKey && event.key === 'I') {
+                event.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+Shift+J 방지 (콘솔)
+            if (event.ctrlKey && event.shiftKey && event.key === 'J') {
+                event.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+U 방지 (소스 보기)
+            if (event.ctrlKey && event.key === 'u') {
+                event.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+Shift+C 방지 (요소 선택)
+            if (event.ctrlKey && event.shiftKey && event.key === 'C') {
+                event.preventDefault();
+                return false;
+            }
+        });
+        
+        // 드래그 방지
+        document.addEventListener('dragstart', function(event) {
+            event.preventDefault();
+        });
+        
+        // 선택 방지 (CSS로도 처리하지만 추가 보안)
+        document.addEventListener('selectstart', function(event) {
+            // 입력 필드는 선택 허용
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return true;
+            }
+            event.preventDefault();
+            return false;
+        });
     </script>
 </body>
 </html>
