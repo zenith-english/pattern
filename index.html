@@ -636,6 +636,16 @@
             display: flex;
             align-items: center;
             justify-content: center; /* 가운데 정렬 */
+            text-align: center; /* 텍스트 가운데 정렬 추가 */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* 예제 텍스트가 있을 때 완전한 가운데 정렬 보장 */
+        .examples-display:not(.empty) {
+            white-space: normal; /* pre-wrap 대신 normal 사용 */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
         .examples-display:hover {
@@ -678,6 +688,146 @@
             margin: 0 4px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+        }
+        
+        /* 저장 옵션 모달 */
+        .save-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .save-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .save-modal-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .save-modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .save-modal-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .save-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .save-option {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .save-option:hover {
+            border-color: var(--primary);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .save-option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .save-option.pdf .save-option-icon {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        .save-option.png .save-option-icon {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .save-option-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .save-option-desc {
+            font-size: 0.813rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .save-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .btn-modal-cancel {
+            background: white;
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-modal-cancel:hover {
+            background: var(--surface);
+            border-color: var(--text-secondary);
         }
         
         /* 로딩 오버레이 */
@@ -809,12 +959,12 @@
                         <span id="examples-btn-text">Show Examples</span>
                     </button>
                     
-                    <button class="btn btn-outline" onclick="saveToPDF()">
+                    <button class="btn btn-outline" onclick="showSaveOptions()">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                             <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                         </svg>
-                        Save as PDF
+                        Save File
                     </button>
                     
                     <button class="btn btn-danger" onclick="clearAll()">
@@ -878,6 +1028,34 @@
                         • Excellence in English Education
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 저장 옵션 선택 모달 -->
+    <div class="save-modal-overlay" id="save-modal-overlay">
+        <div class="save-modal">
+            <div class="save-modal-header">
+                <h3 class="save-modal-title">Choose File Format</h3>
+                <p class="save-modal-subtitle">Select how you'd like to save your pattern sheet</p>
+            </div>
+            
+            <div class="save-options">
+                <div class="save-option pdf" onclick="saveAs('pdf')">
+                    <div class="save-option-icon">📄</div>
+                    <div class="save-option-title">PDF</div>
+                    <div class="save-option-desc">Perfect for printing and sharing. Maintains quality at any size.</div>
+                </div>
+                
+                <div class="save-option png" onclick="saveAs('png')">
+                    <div class="save-option-icon">🖼️</div>
+                    <div class="save-option-title">PNG</div>
+                    <div class="save-option-desc">High-quality image format. Great for digital use and presentations.</div>
+                </div>
+            </div>
+            
+            <div class="save-modal-actions">
+                <button class="btn-modal-cancel" onclick="closeSaveModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -1217,13 +1395,49 @@
             }
         }
         
-        /* PDF로 저장 - 화면 그대로 출력 (날짜만 제외) */
-        async function saveToPDF() {
+        // 저장 옵션 모달 표시
+        function showSaveOptions() {
+            const modal = document.getElementById('save-modal-overlay');
+            modal.style.display = 'flex';
+        }
+        
+        // 저장 옵션 모달 닫기
+        function closeSaveModal() {
+            const modal = document.getElementById('save-modal-overlay');
+            modal.style.display = 'none';
+        }
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSaveModal();
+            }
+        });
+        
+        // 모달 오버레이 클릭으로 닫기
+        document.getElementById('save-modal-overlay').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeSaveModal();
+            }
+        });
+        
+        // 파일 저장 (PDF 또는 PNG)
+        async function saveAs(format) {
+            closeSaveModal();
+            
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-            const filename = `ZENITH_English_Weekly_Pattern_${dateStr}.pdf`;
+            const filename = `ZENITH_English_Weekly_Pattern_${dateStr}`;
             
             const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.querySelector('.loading-text');
+            
+            if (format === 'pdf') {
+                loadingText.textContent = 'Generating PDF...';
+            } else {
+                loadingText.textContent = 'Generating PNG...';
+            }
+            
             loadingOverlay.style.display = 'flex';
             
             try {
@@ -1234,7 +1448,7 @@
                 const originalDisplay = dateBadge.style.display;
                 dateBadge.style.display = 'none';
                 
-                // 임시로 border-radius 제거 (PDF 렌더링 최적화)
+                // 임시로 border-radius 제거 (렌더링 최적화)
                 element.style.borderRadius = '0';
                 
                 const canvas = await html2canvas(element, {
@@ -1256,31 +1470,48 @@
                 // border-radius 복원
                 element.style.borderRadius = '24px';
                 
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4',
-                    compress: true
-                });
-                
-                const imgData = canvas.toDataURL('image/png', 1.0);
-                
-                // A4 크기에 정확히 맞추기
-                const pdfWidth = 210;
-                const pdfHeight = 297;
-                
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save(filename);
-                
-                alert(`PDF가 ${filename}으로 저장되었습니다!`);
+                if (format === 'pdf') {
+                    // PDF 저장
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4',
+                        compress: true
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png', 1.0);
+                    
+                    // A4 크기에 정확히 맞추기
+                    const pdfWidth = 210;
+                    const pdfHeight = 297;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`${filename}.pdf`);
+                    
+                    alert(`PDF가 ${filename}.pdf로 저장되었습니다!`);
+                } else {
+                    // PNG 저장
+                    const link = document.createElement('a');
+                    link.download = `${filename}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    
+                    // 임시로 DOM에 추가하여 클릭
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    alert(`PNG가 ${filename}.png로 저장되었습니다!`);
+                }
             } catch (error) {
-                console.error('PDF 생성 오류:', error);
-                alert('PDF 생성 중 오류가 발생했습니다.');
+                console.error(`${format.toUpperCase()} 생성 오류:`, error);
+                alert(`${format.toUpperCase()} 생성 중 오류가 발생했습니다.`);
             } finally {
                 loadingOverlay.style.display = 'none';
             }
         }
+        
+        /* 기존 saveToPDF 함수는 제거하고 위의 saveAs 함수로 대체 */
         
         // 초기화
         updateDate();
