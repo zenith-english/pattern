@@ -507,7 +507,7 @@
 		  top: 50%;
 		  left: 50%;
 		  transform: translate(-50%, -50%);  /* 화면 정중앙 */
-		  z-index: 9999;  /* 최상위 레이어로 증가 */
+		  z-index: 4000;
 		  background: white;
 		  border: 2px solid var(--border);
 		  border-radius: 12px;
@@ -1897,7 +1897,7 @@
 				
 				// 모든 캘린더 버튼과 날짜 배지 숨김 (PDF/PNG 저장 시)
 				const calendarButtons = document.querySelectorAll('.calendar-btn');
-				const dateBadge = document.getElementById('date-badge');
+				const dateBadge = document.getElementById('date-badge'); // 이 줄 추가
 				
 				calendarButtons.forEach(btn => btn.classList.add('hide-for-export'));
 				if (dateBadge) dateBadge.style.display = 'none'; 
@@ -1905,36 +1905,19 @@
 				// 임시로 border-radius 제거 (렌더링 최적화)
 				element.style.borderRadius = '0';
 				
-				// A4 비율에 맞게 강제 크기 설정 (210mm : 297mm = 1 : 1.414)
-				const originalWidth = element.style.width;
-				const originalHeight = element.style.height;
-				
-				// A4 비율로 강제 설정 (픽셀 기준)
-				const a4Width = 794; // 210mm at 96 DPI
-				const a4Height = 1123; // 297mm at 96 DPI
-				
-				element.style.width = `${a4Width}px`;
-				element.style.height = `${a4Height}px`;
-				
 				const canvas = await html2canvas(element, {
 					scale: 3, // 고해상도
 					useCORS: true,
 					logging: false,
 					backgroundColor: '#ffffff',
-					width: a4Width,
-					height: a4Height,
-					windowWidth: a4Width,
-					windowHeight: a4Height,
-					scrollY: 0,
-					scrollX: 0,
+					windowWidth: element.scrollWidth,
+					windowHeight: element.scrollHeight,
+					scrollY: -window.scrollY,
+					scrollX: -window.scrollX,
 					letterRendering: true,
 					allowTaint: false,
 					foreignObjectRendering: false
 				});
-				
-				// 원래 크기로 복원
-				element.style.width = originalWidth;
-				element.style.height = originalHeight;
 				
 				// 캘린더 버튼과 날짜 배지 다시 표시
 				calendarButtons.forEach(btn => btn.classList.remove('hide-for-export'));
@@ -1964,7 +1947,7 @@
 					
 					alert(`PDF가 ${filename}.pdf로 저장되었습니다!`);
 				} else {
-					// PNG 저장 - A4 비율 유지된 상태로 저장
+					// PNG 저장
 					const link = document.createElement('a');
 					link.download = `${filename}.png`;
 					link.href = canvas.toDataURL('image/png', 1.0);
