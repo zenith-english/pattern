@@ -314,96 +314,114 @@ body {
 :root {
     /* Default */
     --body-bg: #F1F5F9;
+    --container-bg: white;
     
     /* Spring Themes */
     --spring-blossom-primary: #FFB6C1;
     --spring-blossom-secondary: #FFE4E6;
     --spring-blossom-accent: #98FB98;
     --spring-blossom-body-bg: #FDF2F8;
+    --spring-blossom-container-bg: #FEFCFF;
     
     --spring-garden-primary: #90EE90;
     --spring-garden-secondary: #F0FFF0;
     --spring-garden-accent: #FFE4B5;
     --spring-garden-body-bg: #F0FDF4;
+    --spring-garden-container-bg: #FDFFFE;
     
     --spring-sky-primary: #87CEEB;
     --spring-sky-secondary: #F0F8FF;
     --spring-sky-accent: #FFFFE0;
     --spring-sky-body-bg: #F0F9FF;
+    --spring-sky-container-bg: #FEFEFF;
     
     /* Summer Themes */
     --summer-ocean-primary: #40E0D0;
     --summer-ocean-secondary: #E0FFFF;
     --summer-ocean-accent: #FFF8DC;
     --summer-ocean-body-bg: #ECFEFF;
+    --summer-ocean-container-bg: #F8FFFF;
     
     --summer-sunset-primary: #FFA07A;
     --summer-sunset-secondary: #FFF5EE;
     --summer-sunset-accent: #F0E68C;
     --summer-sunset-body-bg: #FFF7ED;
+    --summer-sunset-container-bg: #FFFEFB;
     
     --summer-tropical-primary: #20B2AA;
     --summer-tropical-secondary: #F0FFFF;
     --summer-tropical-accent: #FFEFD5;
     --summer-tropical-body-bg: #F0FDFA;
+    --summer-tropical-container-bg: #FAFFFF;
     
     /* Autumn Themes */
     --autumn-leaves-primary: #DEB887;
     --autumn-leaves-secondary: #FDF5E6;
     --autumn-leaves-accent: #F4A460;
     --autumn-leaves-body-bg: #FFFBEB;
+    --autumn-leaves-container-bg: #FFFEF8;
     
     --autumn-harvest-primary: #CD853F;
     --autumn-harvest-secondary: #FFF8DC;
     --autumn-harvest-accent: #FFE4B5;
     --autumn-harvest-body-bg: #FEF3C7;
+    --autumn-harvest-container-bg: #FFFCF0;
     
     --autumn-golden-primary: #DAA520;
     --autumn-golden-secondary: #FFFAF0;
     --autumn-golden-accent: #F5DEB3;
     --autumn-golden-body-bg: #FFFBEB;
+    --autumn-golden-container-bg: #FFFEF5;
     
     /* Winter Themes */
     --winter-snow-primary: #B0E0E6;
     --winter-snow-secondary: #F8F8FF;
     --winter-snow-accent: #E6E6FA;
     --winter-snow-body-bg: #F8FAFC;
+    --winter-snow-container-bg: #FDFDFF;
     
     --winter-frost-primary: #AFEEEE;
     --winter-frost-secondary: #F0FFFF;
     --winter-frost-accent: #F5F5DC;
     --winter-frost-body-bg: #ECFEFF;
+    --winter-frost-container-bg: #F8FFFF;
     
     --winter-crystal-primary: #ADD8E6;
     --winter-crystal-secondary: #F0F8FF;
     --winter-crystal-accent: #E6E6FA;
     --winter-crystal-body-bg: #F0F9FF;
+    --winter-crystal-container-bg: #FAFEFF;
     
     /* Special Themes */
     --rainbow-pastel-primary: #FFB3BA;
     --rainbow-pastel-secondary: #FFDFBA;
     --rainbow-pastel-accent: #FFFFBA;
     --rainbow-pastel-body-bg: #FEF7FF;
+    --rainbow-pastel-container-bg: #FFFEFF;
     
     --lavender-dreams-primary: #E6E6FA;
     --lavender-dreams-secondary: #F8F8FF;
     --lavender-dreams-accent: #DDA0DD;
     --lavender-dreams-body-bg: #FAF5FF;
+    --lavender-dreams-container-bg: #FEFAFF;
     
     --mint-fresh-primary: #98FB98;
     --mint-fresh-secondary: #F0FFF0;
     --mint-fresh-accent: #AFEEEE;
     --mint-fresh-body-bg: #ECFDF5;
+    --mint-fresh-container-bg: #F8FFFC;
     
     --peach-cream-primary: #FFEAA7;
     --peach-cream-secondary: #FFF5EE;
     --peach-cream-accent: #FFE4E1;
     --peach-cream-body-bg: #FFFBEB;
+    --peach-cream-container-bg: #FFFEF6;
     
     --berry-blush-primary: #FFB6C1;
     --berry-blush-secondary: #FFF0F5;
     --berry-blush-accent: #F0E68C;
     --berry-blush-body-bg: #FDF2F8;
+    --berry-blush-container-bg: #FEFAFC;
 }
 
 /* Theme Application Classes */
@@ -412,6 +430,7 @@ body {
     --surface: var(--spring-blossom-secondary);
     --accent: var(--spring-blossom-accent);
     --body-bg: var(--spring-blossom-body-bg);
+    --container-bg: var(--spring-blossom-container-bg);
 }
 
 .theme-spring-garden {
@@ -419,6 +438,7 @@ body {
     --surface: var(--spring-garden-secondary);
     --accent: var(--spring-garden-accent);
     --body-bg: var(--spring-garden-body-bg);
+    --container-bg: var(--spring-garden-container-bg);
 }
 
 .theme-spring-sky {
@@ -426,6 +446,7 @@ body {
     --surface: var(--spring-sky-secondary);
     --accent: var(--spring-sky-accent);
     --body-bg: var(--spring-sky-body-bg);
+    --container-bg: var(--spring-sky-container-bg);
 }
 
 .theme-summer-ocean {
@@ -433,6 +454,7 @@ body {
     --surface: var(--summer-ocean-secondary);
     --accent: var(--summer-ocean-accent);
     --body-bg: var(--summer-ocean-body-bg);
+    --container-bg: var(--summer-ocean-container-bg);
 }
 
 .theme-summer-sunset {
@@ -440,6 +462,7 @@ body {
     --surface: var(--summer-sunset-secondary);
     --accent: var(--summer-sunset-accent);
     --body-bg: var(--summer-sunset-body-bg);
+    --container-bg: var(--summer-sunset-container-bg);
 }
 
 .theme-summer-tropical {
@@ -447,6 +470,7 @@ body {
     --surface: var(--summer-tropical-secondary);
     --accent: var(--summer-tropical-accent);
     --body-bg: var(--summer-tropical-body-bg);
+    --container-bg: var(--summer-tropical-container-bg);
 }
 
 .theme-autumn-leaves {
@@ -454,6 +478,7 @@ body {
     --surface: var(--autumn-leaves-secondary);
     --accent: var(--autumn-leaves-accent);
     --body-bg: var(--autumn-leaves-body-bg);
+    --container-bg: var(--autumn-leaves-container-bg);
 }
 
 .theme-autumn-harvest {
@@ -461,6 +486,7 @@ body {
     --surface: var(--autumn-harvest-secondary);
     --accent: var(--autumn-harvest-accent);
     --body-bg: var(--autumn-harvest-body-bg);
+    --container-bg: var(--autumn-harvest-container-bg);
 }
 
 .theme-autumn-golden {
@@ -468,6 +494,7 @@ body {
     --surface: var(--autumn-golden-secondary);
     --accent: var(--autumn-golden-accent);
     --body-bg: var(--autumn-golden-body-bg);
+    --container-bg: var(--autumn-golden-container-bg);
 }
 
 .theme-winter-snow {
@@ -475,6 +502,7 @@ body {
     --surface: var(--winter-snow-secondary);
     --accent: var(--winter-snow-accent);
     --body-bg: var(--winter-snow-body-bg);
+    --container-bg: var(--winter-snow-container-bg);
 }
 
 .theme-winter-frost {
@@ -482,6 +510,7 @@ body {
     --surface: var(--winter-frost-secondary);
     --accent: var(--winter-frost-accent);
     --body-bg: var(--winter-frost-body-bg);
+    --container-bg: var(--winter-frost-container-bg);
 }
 
 .theme-winter-crystal {
@@ -489,6 +518,7 @@ body {
     --surface: var(--winter-crystal-secondary);
     --accent: var(--winter-crystal-accent);
     --body-bg: var(--winter-crystal-body-bg);
+    --container-bg: var(--winter-crystal-container-bg);
 }
 
 .theme-rainbow-pastel {
@@ -496,6 +526,7 @@ body {
     --surface: var(--rainbow-pastel-secondary);
     --accent: var(--rainbow-pastel-accent);
     --body-bg: var(--rainbow-pastel-body-bg);
+    --container-bg: var(--rainbow-pastel-container-bg);
 }
 
 .theme-lavender-dreams {
@@ -503,6 +534,7 @@ body {
     --surface: var(--lavender-dreams-secondary);
     --accent: var(--lavender-dreams-accent);
     --body-bg: var(--lavender-dreams-body-bg);
+    --container-bg: var(--lavender-dreams-container-bg);
 }
 
 .theme-mint-fresh {
@@ -510,6 +542,7 @@ body {
     --surface: var(--mint-fresh-secondary);
     --accent: var(--mint-fresh-accent);
     --body-bg: var(--mint-fresh-body-bg);
+    --container-bg: var(--mint-fresh-container-bg);
 }
 
 .theme-peach-cream {
@@ -517,6 +550,7 @@ body {
     --surface: var(--peach-cream-secondary);
     --accent: var(--peach-cream-accent);
     --body-bg: var(--peach-cream-body-bg);
+    --container-bg: var(--peach-cream-container-bg);
 }
 
 .theme-berry-blush {
@@ -524,6 +558,7 @@ body {
     --surface: var(--berry-blush-secondary);
     --accent: var(--berry-blush-accent);
     --body-bg: var(--berry-blush-body-bg);
+    --container-bg: var(--berry-blush-container-bg);
 }
 
 /* Additional Background Effects for Better Visual Appeal */

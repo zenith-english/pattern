@@ -24,11 +24,12 @@ body {
 .container {
     width: 210mm;
     height: 297mm;
-    background: white;
+    background: var(--container-bg, white);
     box-shadow: var(--shadow-xl);
     position: relative;
     overflow: visible;
     border-radius: 24px;
+    transition: background-color 0.8s ease;
 }
 
 .poster {

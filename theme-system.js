@@ -283,6 +283,68 @@ function applyTheme(themeKey) {
         body.classList.add(`theme-${themeKey}`);
     }
     
+    // 강제로 body 배경색 설정 (CSS 변수가 제대로 로드되지 않을 경우 대비)
+    const themeData = themes[themeKey];
+    if (themeData && themeData.colors) {
+        // 테마별 배경색 직접 설정
+        const bodyBgColors = {
+            'spring-blossom': '#FDF2F8',
+            'spring-garden': '#F0FDF4',
+            'spring-sky': '#F0F9FF',
+            'summer-ocean': '#ECFEFF',
+            'summer-sunset': '#FFF7ED',
+            'summer-tropical': '#F0FDFA',
+            'autumn-leaves': '#FFFBEB',
+            'autumn-harvest': '#FEF3C7',
+            'autumn-golden': '#FFFBEB',
+            'winter-snow': '#F8FAFC',
+            'winter-frost': '#ECFEFF',
+            'winter-crystal': '#F0F9FF',
+            'rainbow-pastel': '#FEF7FF',
+            'lavender-dreams': '#FAF5FF',
+            'mint-fresh': '#ECFDF5',
+            'peach-cream': '#FFFBEB',
+            'berry-blush': '#FDF2F8'
+        };
+        
+        const containerBgColors = {
+            'spring-blossom': '#FEFCFF',
+            'spring-garden': '#FDFFFE',
+            'spring-sky': '#FEFEFF',
+            'summer-ocean': '#F8FFFF',
+            'summer-sunset': '#FFFEFB',
+            'summer-tropical': '#FAFFFF',
+            'autumn-leaves': '#FFFEF8',
+            'autumn-harvest': '#FFFCF0',
+            'autumn-golden': '#FFFEF5',
+            'winter-snow': '#FDFDFF',
+            'winter-frost': '#F8FFFF',
+            'winter-crystal': '#FAFEFF',
+            'rainbow-pastel': '#FFFEFF',
+            'lavender-dreams': '#FEFAFF',
+            'mint-fresh': '#F8FFFC',
+            'peach-cream': '#FFFEF6',
+            'berry-blush': '#FEFAFC'
+        };
+        
+        const bgColor = bodyBgColors[themeKey] || '#F1F5F9';
+        const containerBg = containerBgColors[themeKey] || 'white';
+        
+        body.style.backgroundColor = bgColor;
+        
+        // 포스터 컨테이너 배경색도 강제 설정
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.setProperty('background-color', containerBg, 'important');
+        }
+    } else {
+        body.style.backgroundColor = '#F1F5F9';
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.setProperty('background-color', 'white', 'important');
+        }
+    }
+    
     // 배경 애니메이션 효과 추가
     if (bgPattern) {
         // 배경 전환 애니메이션
