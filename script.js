@@ -1142,37 +1142,50 @@ function showTextEditorToolbar(x, y) {
         return;
     }
     
+    // 먼저 툴바를 보이게 한 후 실제 크기 측정
+    textEditorToolbar.style.visibility = 'hidden';
+    textEditorToolbar.style.display = 'flex';
+    textEditorToolbar.classList.add('show');
+    
+    // 실제 툴바 크기 측정
+    const toolbarRect = textEditorToolbar.getBoundingClientRect();
+    const toolbarWidth = toolbarRect.width;
+    const toolbarHeight = toolbarRect.height;
+    
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const toolbarWidth = 200; // 예상 툴바 너비
-    const toolbarHeight = 50; // 예상 툴바 높이
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
     
-    // X 좌표 조정
-    let leftPosition = x;
-    if (leftPosition + toolbarWidth > viewportWidth) {
-        leftPosition = viewportWidth - toolbarWidth - 10;
+    // X 좌표 조정 (스크롤 위치 고려)
+    let leftPosition = x + scrollX;
+    if (leftPosition + toolbarWidth > viewportWidth + scrollX) {
+        leftPosition = viewportWidth + scrollX - toolbarWidth - 10;
     }
-    if (leftPosition < 10) {
-        leftPosition = 10;
+    if (leftPosition < scrollX + 10) {
+        leftPosition = scrollX + 10;
     }
     
-    // Y 좌표 조정
-    let topPosition = y - 60;
-    if (topPosition + toolbarHeight > viewportHeight - 100) {
-        topPosition = viewportHeight - toolbarHeight - 100;
+    // Y 좌표 조정 (마우스 위치에서 약간 위쪽에 표시, 스크롤 위치 고려)
+    let topPosition = y + scrollY - toolbarHeight - 10;
+    if (topPosition < scrollY + 10) {
+        topPosition = y + scrollY + 20; // 마우스 아래쪽에 표시
     }
-    if (topPosition < 10) {
-        topPosition = 10;
+    if (topPosition + toolbarHeight > viewportHeight + scrollY - 20) {
+        topPosition = viewportHeight + scrollY - toolbarHeight - 20;
     }
     
     textEditorToolbar.style.left = leftPosition + 'px';
     textEditorToolbar.style.top = topPosition + 'px';
-    textEditorToolbar.style.display = 'flex';
-    textEditorToolbar.classList.add('show');
+    textEditorToolbar.style.visibility = 'visible';
     
     console.log('툴바 스타일 설정됨:', {
         left: textEditorToolbar.style.left,
-        top: textEditorToolbar.style.top
+        top: textEditorToolbar.style.top,
+        mouseX: x,
+        mouseY: y,
+        scrollX: scrollX,
+        scrollY: scrollY
     });
 }
 
@@ -1416,13 +1429,37 @@ function getSelectedHtml(range) {
 }
 
 function applyStyleToTextOnly(range, property, value) {
+    // 선택 영역의 앞뒤 공백 확인
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const startOffset = range.startOffset;
+    const endOffset = range.endOffset;
+    
+    // 앞쪽 공백 확인
+    let leadingSpace = '';
+    if (startContainer.nodeType === Node.TEXT_NODE && startOffset > 0) {
+        const prevChar = startContainer.textContent.charAt(startOffset - 1);
+        if (prevChar === ' ' || prevChar === '\u00A0') {
+            leadingSpace = '&nbsp;';
+        }
+    }
+    
+    // 뒤쪽 공백 확인
+    let trailingSpace = '';
+    if (endContainer.nodeType === Node.TEXT_NODE && endOffset < endContainer.textContent.length) {
+        const nextChar = endContainer.textContent.charAt(endOffset);
+        if (nextChar === ' ' || nextChar === '\u00A0') {
+            trailingSpace = '&nbsp;';
+        }
+    }
+    
     const extractedContent = range.extractContents();
     
     const span = document.createElement('span');
     span.style.setProperty(property, value);
     span.style.whiteSpace = 'pre-wrap';
-    span.style.verticalAlign = 'baseline';  /* 추가 */
-    span.style.display = 'inline';           /* 추가 */
+    span.style.verticalAlign = 'baseline';
+    span.style.display = 'inline';
 	
     // 부모 스타일 상속
     const targetNode = range.commonAncestorContainer.nodeType === Node.TEXT_NODE ?
@@ -1437,6 +1474,14 @@ function applyStyleToTextOnly(range, property, value) {
         if (parentSpan.style.fontSize && property !== 'font-size') {
             span.style.fontSize = parentSpan.style.fontSize;
         }
+    }
+    
+    // 앞쪽 공백 추가
+    if (leadingSpace) {
+        const leadingSpaceElement = document.createElement('span');
+        leadingSpaceElement.innerHTML = leadingSpace;
+        leadingSpaceElement.style.whiteSpace = 'pre-wrap';
+        span.appendChild(leadingSpaceElement);
     }
     
     // 텍스트 노드의 공백을 보존하며 추가
@@ -1454,6 +1499,14 @@ function applyStyleToTextOnly(range, property, value) {
             span.appendChild(node);
         }
     });
+    
+    // 뒤쪽 공백 추가
+    if (trailingSpace) {
+        const trailingSpaceElement = document.createElement('span');
+        trailingSpaceElement.innerHTML = trailingSpace;
+        trailingSpaceElement.style.whiteSpace = 'pre-wrap';
+        span.appendChild(trailingSpaceElement);
+    }
     
     range.insertNode(span);
     
