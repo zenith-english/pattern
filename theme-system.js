@@ -1,698 +1,1080 @@
-// theme-system.js - Enhanced Theme System with Dynamic Backgrounds
+// text-editor.js - 텍스트 편집 및 스타일링
 
-// 테마 데이터 정의 (배경 스타일 포함)
-const themes = {
-    'default': {
-        name: 'Default Purple',
-        category: 'Default',
-        description: 'Classic purple theme',
-        colors: {
-            primary: '#6366F1',
-            surface: '#F8FAFC',
-            accent: '#F59E0B'
-        },
-        backgroundStyle: 'elegant'
-    },
-    
-    // Spring Themes
-    'spring-blossom': {
-        name: 'Spring Blossom',
-        category: 'Spring',
-        description: 'Cherry blossom pink with fresh green',
-        colors: {
-            primary: '#FFB6C1',
-            surface: '#FFE4E6',
-            accent: '#98FB98'
-        },
-        backgroundStyle: 'floral'
-    },
-    'spring-garden': {
-        name: 'Spring Garden',
-        category: 'Spring',
-        description: 'Fresh garden greens',
-        colors: {
-            primary: '#90EE90',
-            surface: '#F0FFF0',
-            accent: '#FFE4B5'
-        },
-        backgroundStyle: 'nature'
-    },
-    'spring-sky': {
-        name: 'Spring Sky',
-        category: 'Spring',
-        description: 'Clear blue sky with soft yellow',
-        colors: {
-            primary: '#87CEEB',
-            surface: '#F0F8FF',
-            accent: '#FFFFE0'
-        },
-        backgroundStyle: 'sky'
-    },
-    
-    // Summer Themes
-    'summer-ocean': {
-        name: 'Summer Ocean',
-        category: 'Summer',
-        description: 'Turquoise ocean waves',
-        colors: {
-            primary: '#40E0D0',
-            surface: '#E0FFFF',
-            accent: '#FFF8DC'
-        },
-        backgroundStyle: 'ocean'
-    },
-    'summer-sunset': {
-        name: 'Summer Sunset',
-        category: 'Summer',
-        description: 'Warm coral sunset',
-        colors: {
-            primary: '#FFA07A',
-            surface: '#FFF5EE',
-            accent: '#F0E68C'
-        },
-        backgroundStyle: 'sunset'
-    },
-    'summer-tropical': {
-        name: 'Summer Tropical',
-        category: 'Summer',
-        description: 'Tropical paradise vibes',
-        colors: {
-            primary: '#20B2AA',
-            surface: '#F0FFFF',
-            accent: '#FFEFD5'
-        },
-        backgroundStyle: 'tropical'
-    },
-    
-    // Autumn Themes
-    'autumn-leaves': {
-        name: 'Autumn Leaves',
-        category: 'Autumn',
-        description: 'Golden autumn leaves',
-        colors: {
-            primary: '#DEB887',
-            surface: '#FDF5E6',
-            accent: '#F4A460'
-        },
-        backgroundStyle: 'leaves'
-    },
-    'autumn-harvest': {
-        name: 'Autumn Harvest',
-        category: 'Autumn',
-        description: 'Rich harvest colors',
-        colors: {
-            primary: '#CD853F',
-            surface: '#FFF8DC',
-            accent: '#FFE4B5'
-        },
-        backgroundStyle: 'harvest'
-    },
-    'autumn-golden': {
-        name: 'Autumn Golden',
-        category: 'Autumn',
-        description: 'Golden hour warmth',
-        colors: {
-            primary: '#DAA520',
-            surface: '#FFFAF0',
-            accent: '#F5DEB3'
-        },
-        backgroundStyle: 'golden'
-    },
-    
-    // Winter Themes
-    'winter-snow': {
-        name: 'Winter Snow',
-        category: 'Winter',
-        description: 'Soft winter snow',
-        colors: {
-            primary: '#B0E0E6',
-            surface: '#F8F8FF',
-            accent: '#E6E6FA'
-        },
-        backgroundStyle: 'snow'
-    },
-    'winter-frost': {
-        name: 'Winter Frost',
-        category: 'Winter',
-        description: 'Crystalline frost',
-        colors: {
-            primary: '#AFEEEE',
-            surface: '#F0FFFF',
-            accent: '#F5F5DC'
-        },
-        backgroundStyle: 'frost'
-    },
-    'winter-crystal': {
-        name: 'Winter Crystal',
-        category: 'Winter',
-        description: 'Ice crystal blue',
-        colors: {
-            primary: '#ADD8E6',
-            surface: '#F0F8FF',
-            accent: '#E6E6FA'
-        },
-        backgroundStyle: 'crystal'
-    },
-    
-    // Special Themes
-    'rainbow-pastel': {
-        name: 'Rainbow Pastel',
-        category: 'Special',
-        description: 'Soft rainbow colors',
-        colors: {
-            primary: '#FFB3BA',
-            surface: '#FFDFBA',
-            accent: '#FFFFBA'
-        },
-        backgroundStyle: 'rainbow'
-    },
-    'lavender-dreams': {
-        name: 'Lavender Dreams',
-        category: 'Special',
-        description: 'Dreamy lavender fields',
-        colors: {
-            primary: '#E6E6FA',
-            surface: '#F8F8FF',
-            accent: '#DDA0DD'
-        },
-        backgroundStyle: 'lavender'
-    },
-    'mint-fresh': {
-        name: 'Mint Fresh',
-        category: 'Special',
-        description: 'Cool mint freshness',
-        colors: {
-            primary: '#98FB98',
-            surface: '#F0FFF0',
-            accent: '#AFEEEE'
-        },
-        backgroundStyle: 'mint'
-    },
-    'peach-cream': {
-        name: 'Peach Cream',
-        category: 'Special',
-        description: 'Creamy peach delight',
-        colors: {
-            primary: '#FFEAA7',
-            surface: '#FFF5EE',
-            accent: '#FFE4E1'
-        },
-        backgroundStyle: 'peach'
-    },
-    'berry-blush': {
-        name: 'Berry Blush',
-        category: 'Special',
-        description: 'Sweet berry blush',
-        colors: {
-            primary: '#FFB6C1',
-            surface: '#FFF0F5',
-            accent: '#F0E68C'
-        },
-        backgroundStyle: 'berry'
-    }
-};
+// 텍스트 에디터 관련 전역 변수
+let activeTextSelection = null;
+let colorPalette = null;
+let fontSizeControls = null;
+let textEditorToolbar = null;
 
-// 현재 활성 테마
-let currentTheme = 'default';
+// 폰트 크기 기준값 관리를 위한 전역 변수 추가
+let originalFontSizes = new Map(); // 각 요소의 원본 폰트 크기 저장
 
-// 테마 시스템 초기화
-function initThemeSystem() {
-    createThemeSelector();
-    updateThemePreview();
-    addBackgroundAnimations();
-}
-
-// 테마 셀렉터 생성
-function createThemeSelector() {
-    const selector = document.getElementById('theme-selector');
-    if (!selector) return;
+// 텍스트 에디터 초기화
+function initTextEditor() {
+    // 컬러 팔레트 생성
+    createColorPalette();
     
-    // 기본 옵션 추가
-    selector.innerHTML = '<option value="">Choose a theme...</option>';
+    // 폰트 크기 컨트롤 생성
+    createFontSizeControls();
     
-    // 카테고리별 그룹화
-    const categories = {};
-    Object.entries(themes).forEach(([key, theme]) => {
-        if (!categories[theme.category]) {
-            categories[theme.category] = [];
-        }
-        categories[theme.category].push({ key, theme });
-    });
-    
-    // 옵션 그룹별로 추가
-    Object.entries(categories).forEach(([category, themeList]) => {
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = category;
-        
-        themeList.forEach(({ key, theme }) => {
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = theme.name;
-            optgroup.appendChild(option);
-        });
-        
-        selector.appendChild(optgroup);
-    });
+    // 툴바 생성
+    createTextEditorToolbar();
     
     // 이벤트 리스너 추가
-    selector.addEventListener('change', function() {
-        if (this.value) {
-            applyTheme(this.value);
-        }
-    });
+    addTextEditorEventListeners();
 }
 
-// 테마 적용 함수 (강화된 배경 효과 포함)
-function applyTheme(themeKey) {
-    if (!themes[themeKey]) return;
-    
-    currentTheme = themeKey;
-    const theme = themes[themeKey];
-    const body = document.body;
-    const bgPattern = document.querySelector('.bg-pattern');
-    
-    // 기존 테마 클래스 제거
-    body.classList.forEach(cls => {
-        if (cls.startsWith('theme-')) {
-            body.classList.remove(cls);
+function addTextEditorEventListeners() {
+    // 마우스 다운 시 기존 선택 해제
+    document.addEventListener('mousedown', function(event) {
+        // 툴바나 컨트롤 영역이 아닌 곳을 클릭할 때만
+        if (!event.target.closest('#text-editor-toolbar') &&
+            !event.target.closest('#color-palette') &&
+            !event.target.closest('#font-size-controls')) {
+            
+            // 드래그가 시작되면 기존 activeTextSelection 초기화
+            if (activeTextSelection && !event.target.closest('.pattern-display, .examples-display')) {
+                activeTextSelection = null;
+            }
         }
     });
     
-    // 새 테마 클래스 추가 (default 테마는 클래스 없음)
-    if (themeKey !== 'default') {
-        body.classList.add(`theme-${themeKey}`);
-    }
+    // mouseup 이벤트로 텍스트 선택 감지 및 툴바 활성화
+    document.addEventListener('mouseup', handleTextSelection);
     
-    // 강제로 body 배경색 설정 (CSS 변수가 제대로 로드되지 않을 경우 대비)
-    const themeData = themes[themeKey];
-    if (themeData && themeData.colors) {
-        // 테마별 배경색 직접 설정
-        const bodyBgColors = {
-            'spring-blossom': '#FDF2F8',
-            'spring-garden': '#F0FDF4',
-            'spring-sky': '#F0F9FF',
-            'summer-ocean': '#ECFEFF',
-            'summer-sunset': '#FFF7ED',
-            'summer-tropical': '#F0FDFA',
-            'autumn-leaves': '#FFFBEB',
-            'autumn-harvest': '#FEF3C7',
-            'autumn-golden': '#FFFBEB',
-            'winter-snow': '#F8FAFC',
-            'winter-frost': '#ECFEFF',
-            'winter-crystal': '#F0F9FF',
-            'rainbow-pastel': '#FEF7FF',
-            'lavender-dreams': '#FAF5FF',
-            'mint-fresh': '#ECFDF5',
-            'peach-cream': '#FFFBEB',
-            'berry-blush': '#FDF2F8'
-        };
-        
-        const containerBgColors = {
-            'spring-blossom': '#FEFCFF',
-            'spring-garden': '#FDFFFE',
-            'spring-sky': '#FEFEFF',
-            'summer-ocean': '#F8FFFF',
-            'summer-sunset': '#FFFEFB',
-            'summer-tropical': '#FAFFFF',
-            'autumn-leaves': '#FFFEF8',
-            'autumn-harvest': '#FFFCF0',
-            'autumn-golden': '#FFFEF5',
-            'winter-snow': '#FDFDFF',
-            'winter-frost': '#F8FFFF',
-            'winter-crystal': '#FAFEFF',
-            'rainbow-pastel': '#FFFEFF',
-            'lavender-dreams': '#FEFAFF',
-            'mint-fresh': '#F8FFFC',
-            'peach-cream': '#FFFEF6',
-            'berry-blush': '#FEFAFC'
-        };
-        
-        const bgColor = bodyBgColors[themeKey] || '#F1F5F9';
-        const containerBg = containerBgColors[themeKey] || 'white';
-        
-        body.style.backgroundColor = bgColor;
-        
-        // 포스터 컨테이너 배경색도 강제 설정
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.setProperty('background-color', containerBg, 'important');
-        }
-    } else {
-        body.style.backgroundColor = '#F1F5F9';
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.setProperty('background-color', 'white', 'important');
-        }
-    }
-    
-    // 배경 애니메이션 효과 추가
-    if (bgPattern) {
-        // 배경 전환 애니메이션
-        bgPattern.style.opacity = '0';
-        bgPattern.style.transform = 'scale(1.05)';
-        
-        setTimeout(() => {
-            bgPattern.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-            bgPattern.style.opacity = '0.06';
-            bgPattern.style.transform = 'scale(1)';
-            
-            // 특별한 테마별 효과
-            applySpecialThemeEffects(themeKey, bgPattern);
-        }, 100);
-    }
-    
-    // 테마 프리뷰 업데이트
-    updateThemePreview();
-    
-    console.log(`테마 적용됨: ${theme.name} (${theme.backgroundStyle} style)`);
+    // 키보드 선택도 지원 (Shift + 화살표 등)
+    document.addEventListener('keyup', handleTextSelection);
 }
 
-// 특별한 테마별 효과 적용
-function applySpecialThemeEffects(themeKey, bgPattern) {
-    // 모든 특수 효과 클래스 제거
-    bgPattern.classList.remove('rainbow-animated', 'seasonal-breeze', 'sparkle-effect');
-    
-    switch(themeKey) {
-        case 'rainbow-pastel':
-            bgPattern.classList.add('rainbow-animated');
-            break;
-        case 'spring-blossom':
-        case 'spring-garden':
-        case 'spring-sky':
-            bgPattern.classList.add('seasonal-breeze');
-            break;
-        case 'winter-snow':
-        case 'winter-frost':
-        case 'winter-crystal':
-            bgPattern.classList.add('sparkle-effect');
-            break;
-    }
-}
-
-// 배경 애니메이션 효과 추가
-function addBackgroundAnimations() {
-    // 동적 스타일 추가
-    if (!document.getElementById('theme-animations')) {
-        const style = document.createElement('style');
-        style.id = 'theme-animations';
-        style.textContent = `
-            .rainbow-animated {
-                animation: rainbow-float 8s ease-in-out infinite alternate !important;
-            }
-            
-            .seasonal-breeze {
-                animation: gentle-breeze 6s ease-in-out infinite alternate;
-            }
-            
-            .sparkle-effect {
-                animation: sparkle-shimmer 4s ease-in-out infinite alternate;
-            }
-            
-            @keyframes gentle-breeze {
-                0% { transform: translateX(0) translateY(0) rotate(0deg); }
-                25% { transform: translateX(3px) translateY(-2px) rotate(0.5deg); }
-                50% { transform: translateX(0) translateY(-3px) rotate(0deg); }
-                75% { transform: translateX(-2px) translateY(-1px) rotate(-0.5deg); }
-                100% { transform: translateX(0) translateY(0) rotate(0deg); }
-            }
-            
-            @keyframes sparkle-shimmer {
-                0% { opacity: 0.06; transform: scale(1); }
-                50% { opacity: 0.1; transform: scale(1.02); }
-                100% { opacity: 0.06; transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
-
-// 랜덤 테마 적용 (개선된 애니메이션 포함)
-function applyRandomTheme() {
-    const themeKeys = Object.keys(themes);
-    // 현재 테마 제외
-    const availableThemes = themeKeys.filter(key => key !== currentTheme);
-    const randomKey = availableThemes[Math.floor(Math.random() * availableThemes.length)];
-    
-    // 셀렉터 값 업데이트
-    const selector = document.getElementById('theme-selector');
-    if (selector) {
-        selector.value = randomKey;
+// 컬러 팔레트 생성
+function createColorPalette() {
+    // 기존 팔레트 제거
+    if (colorPalette) {
+        colorPalette.remove();
     }
     
-    // 랜덤 테마 적용 전 특별한 효과
-    const container = document.querySelector('.container');
-    if (container) {
-        container.style.transform = 'scale(0.98) rotate(1deg)';
-        container.style.transition = 'all 0.3s ease';
+    colorPalette = document.createElement('div');
+    colorPalette.className = 'color-palette';
+    colorPalette.id = 'color-palette';
+    
+    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple', 'black'];
+    
+    colors.forEach(color => {
+        const colorOption = document.createElement('div');
+        colorOption.className = `color-option ${color}`;
         
-        setTimeout(() => {
-            applyTheme(randomKey);
-            container.style.transform = 'scale(1) rotate(0deg)';
-        }, 150);
-    } else {
-        applyTheme(randomKey);
-    }
-    
-    // 랜덤 테마 적용 알림
-    const theme = themes[randomKey];
-    showThemeNotification(`🎨 ${theme.name} 테마가 적용되었습니다!`);
-}
-
-// 계절별 랜덤 테마 (강화된 계절감)
-function applySeasonalTheme() {
-    const currentMonth = new Date().getMonth() + 1; // 1-12
-    let seasonalThemes = [];
-    let seasonName = '';
-    
-    if (currentMonth >= 3 && currentMonth <= 5) {
-        // 봄 (3-5월)
-        seasonalThemes = Object.keys(themes).filter(key => 
-            themes[key].category === 'Spring'
-        );
-        seasonName = '봄';
-    } else if (currentMonth >= 6 && currentMonth <= 8) {
-        // 여름 (6-8월)
-        seasonalThemes = Object.keys(themes).filter(key => 
-            themes[key].category === 'Summer'
-        );
-        seasonName = '여름';
-    } else if (currentMonth >= 9 && currentMonth <= 11) {
-        // 가을 (9-11월)
-        seasonalThemes = Object.keys(themes).filter(key => 
-            themes[key].category === 'Autumn'
-        );
-        seasonName = '가을';
-    } else {
-        // 겨울 (12, 1, 2월)
-        seasonalThemes = Object.keys(themes).filter(key => 
-            themes[key].category === 'Winter'
-        );
-        seasonName = '겨울';
-    }
-    
-    // 계절 테마가 없으면 모든 테마에서 선택
-    if (seasonalThemes.length === 0) {
-        seasonalThemes = Object.keys(themes);
-        seasonName = '특별한';
-    }
-    
-    // 현재 테마 제외하고 랜덤 선택
-    const availableThemes = seasonalThemes.filter(key => key !== currentTheme);
-    if (availableThemes.length === 0) {
-        availableThemes.push(...seasonalThemes);
-    }
-    
-    const randomKey = availableThemes[Math.floor(Math.random() * availableThemes.length)];
-    
-    // 셀렉터 값 업데이트
-    const selector = document.getElementById('theme-selector');
-    if (selector) {
-        selector.value = randomKey;
-    }
-    
-    // 계절별 테마 적용 전 특별한 효과
-    const bgPattern = document.querySelector('.bg-pattern');
-    if (bgPattern) {
-        bgPattern.style.filter = 'blur(2px)';
-        bgPattern.style.transition = 'all 0.4s ease';
-        
-        setTimeout(() => {
-            applyTheme(randomKey);
-            bgPattern.style.filter = 'blur(0)';
-        }, 200);
-    } else {
-        applyTheme(randomKey);
-    }
-    
-    const theme = themes[randomKey];
-    showThemeNotification(`${getSeasonEmoji(seasonName)} ${seasonName} 테마: ${theme.name}이 적용되었습니다!`);
-}
-
-// 계절별 이모지 반환
-function getSeasonEmoji(season) {
-    const emojis = {
-        '봄': '🌸',
-        '여름': '🌞',
-        '가을': '🍂',
-        '겨울': '❄️',
-        '특별한': '✨'
-    };
-    return emojis[season] || '🎨';
-}
-
-// 테마 프리뷰 업데이트 (강화됨)
-function updateThemePreview() {
-    const preview = document.getElementById('theme-preview');
-    if (!preview || currentTheme === '') return;
-    
-    const theme = themes[currentTheme];
-    if (!theme) return;
-    
-    // 컬러 도트 생성
-    const colorDots = preview.querySelector('.theme-color-dots');
-    if (colorDots) {
-        colorDots.innerHTML = '';
-        
-        Object.values(theme.colors).forEach((color, index) => {
-            const dot = document.createElement('div');
-            dot.className = 'theme-color-dot';
-            dot.style.backgroundColor = color;
-            dot.style.animationDelay = `${index * 0.1}s`;
-            dot.style.animation = 'colorPulse 2s ease-in-out infinite alternate';
-            colorDots.appendChild(dot);
+        // 이벤트 리스너 추가
+        colorOption.addEventListener('click', function(e) {
+            e.stopPropagation();
+            changeTextColor(color);
         });
-    }
+        
+        colorPalette.appendChild(colorOption);
+    });
     
-    // 설명 업데이트
-    const description = preview.querySelector('.theme-description');
-    if (description) {
-        description.textContent = `${theme.description} (${theme.backgroundStyle} style)`;
-    }
-    
-    // 프리뷰 표시
-    preview.classList.add('show');
-    
-    // 컬러 도트 애니메이션 추가
-    if (!document.getElementById('color-dot-animation')) {
-        const style = document.createElement('style');
-        style.id = 'color-dot-animation';
-        style.textContent = `
-            @keyframes colorPulse {
-                0% { transform: scale(1); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-                100% { transform: scale(1.1); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    document.body.appendChild(colorPalette);
 }
 
-// 테마 알림 표시 (개선된 디자인)
-function showThemeNotification(message) {
-    // 기존 알림 제거
-    const existingNotification = document.querySelector('.theme-notification');
-    if (existingNotification) {
-        existingNotification.remove();
+// 폰트 크기 컨트롤 생성
+function createFontSizeControls() {
+    // 기존 컨트롤 제거
+    if (fontSizeControls) {
+        fontSizeControls.remove();
     }
     
-    // 새 알림 생성
-    const notification = document.createElement('div');
-    notification.className = 'theme-notification';
-    notification.style.cssText = `
-        position: fixed;
-        top: 30px;
-        right: 30px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(15px);
-        border: 2px solid var(--primary);
-        border-radius: 16px;
-        padding: 20px 24px;
-        box-shadow: 
-            0 10px 25px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(255, 255, 255, 0.8);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text);
-        z-index: 10000;
-        animation: slideInRight 0.4s cubic-bezier(0.2, 0, 0.2, 1);
-        max-width: 320px;
-        transform-origin: right center;
+    fontSizeControls = document.createElement('div');
+    fontSizeControls.className = 'font-size-controls';
+    fontSizeControls.id = 'font-size-controls';
+    
+    fontSizeControls.innerHTML = `
+        <div class="font-size-input-group">
+            <label for="font-size-input" class="font-size-label">Font Size (em):</label>
+            <input type="number" class="font-size-input" id="font-size-input" 
+                   min="0.5" max="5.0" step="0.1" value="1.0" 
+                   placeholder="1.0">
+        </div>
+        <input type="range" class="font-size-slider" id="font-size-slider" 
+               min="0.5" max="3.0" step="0.1" value="1.0">
+        <div class="font-size-presets">
+            <button class="preset-btn" data-size="0.8">Small</button>
+            <button class="preset-btn" data-size="1.0">Normal</button>
+            <button class="preset-btn" data-size="1.2">Large</button>
+            <button class="preset-btn" data-size="1.5">XL</button>
+        </div>
     `;
     
-    notification.textContent = message;
+    document.body.appendChild(fontSizeControls);
     
-    // 애니메이션 스타일 추가
-    if (!document.getElementById('theme-notification-style')) {
-        const style = document.createElement('style');
-        style.id = 'theme-notification-style';
-        style.textContent = `
-            @keyframes slideInRight {
-                from {
-                    opacity: 0;
-                    transform: translateX(100px) scale(0.8);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0) scale(1);
-                }
+    // 요소들 가져오기
+    const slider = document.getElementById('font-size-slider');
+    const input = document.getElementById('font-size-input');
+    const presetButtons = fontSizeControls.querySelectorAll('.preset-btn');
+    
+    // 슬라이더 이벤트
+    slider.addEventListener('input', function() {
+        const value = parseFloat(this.value);
+        input.value = value;
+        if (activeTextSelection) {
+            changeTextFontSize(value);
+        }
+    });
+    
+    // 입력 필드 이벤트
+    input.addEventListener('input', function() {
+        let value = parseFloat(this.value);
+        
+        // 값 범위 제한
+        if (value < 0.5) value = 0.5;
+        if (value > 5.0) value = 5.0;
+        
+        this.value = value;
+        
+        // 슬라이더 범위 내에서만 동기화
+        if (value >= 0.5 && value <= 3.0) {
+            slider.value = value;
+        }
+        
+        if (activeTextSelection) {
+            changeTextFontSize(value);
+        }
+    });
+    
+    // Enter 키로 적용
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.blur();
+        }
+    });
+    
+    // 프리셋 버튼 이벤트
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const size = parseFloat(this.dataset.size);
+            input.value = size;
+            slider.value = size;
+            if (activeTextSelection) {
+                changeTextFontSize(size);
             }
-            @keyframes slideOutRight {
-                from {
-                    opacity: 1;
-                    transform: translateX(0) scale(1);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateX(100px) scale(0.8);
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        });
+    });
+}
+
+// 텍스트 에디터 툴바 생성
+function createTextEditorToolbar() {
+    // 기존 툴바 제거
+    if (textEditorToolbar) {
+        textEditorToolbar.remove();
     }
     
-    document.body.appendChild(notification);
+    textEditorToolbar = document.createElement('div');
+    textEditorToolbar.className = 'text-editor-toolbar';
+    textEditorToolbar.id = 'text-editor-toolbar';
     
-    // 4초 후 자동 제거
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOutRight 0.4s cubic-bezier(0.4, 0, 1, 1)';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 400);
-        }
-    }, 4000);
+    // 버튼들을 innerHTML로 한번에 생성
+    textEditorToolbar.innerHTML = `
+        <button class="toolbar-btn" id="toolbar-color-btn">Color</button>
+        <button class="toolbar-btn" id="toolbar-size-btn">Size</button>
+        <button class="toolbar-btn" id="toolbar-reset-btn">Reset</button>
+    `;
+    
+    document.body.appendChild(textEditorToolbar);
+    
+    // DOM에 추가된 후 바로 이벤트 리스너 등록
+    document.getElementById('toolbar-color-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        showColorPalette(e);
+    });
+    
+    document.getElementById('toolbar-size-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        showFontSizeControls(e);
+    });
+    
+    document.getElementById('toolbar-reset-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        resetTextStyle();
+    });
 }
 
-// 테마 데이터 확장을 위한 함수 (나중에 사용)
-function addCustomTheme(key, themeData) {
-    themes[key] = themeData;
-    createThemeSelector(); // 셀렉터 재생성
-    console.log(`새 테마 추가됨: ${themeData.name} (${themeData.backgroundStyle} style)`);
-}
-
-// 현재 테마 정보 반환
-function getCurrentTheme() {
-    return {
-        key: currentTheme,
-        data: themes[currentTheme]
-    };
-}
-
-// 테마 목록 반환 (카테고리별)
-function getThemesByCategory(category) {
-    return Object.entries(themes)
-        .filter(([key, theme]) => theme.category === category)
-        .reduce((acc, [key, theme]) => {
-            acc[key] = theme;
-            return acc;
-        }, {});
-}
-
-// 초기화 함수 - DOM이 로드된 후 호출
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        initThemeSystem();
-        console.log('Enhanced Theme System with Dynamic Backgrounds initialized! 🎨');
-    }, 100);
+// 이벤트 리스너 추가
+document.addEventListener('click', function(event) {
+    // 텍스트 에디터 관련 요소들 확인
+    const isToolbarClick = event.target.closest('#text-editor-toolbar');
+    const isPaletteClick = event.target.closest('#color-palette');
+    const isFontControlClick = event.target.closest('#font-size-controls');
+    
+    // 텍스트 에디터 관련 요소를 클릭한 경우 아무것도 하지 않음
+    if (isToolbarClick || isPaletteClick || isFontControlClick) {
+        return;
+    }
+    
+    // 입력 필드들 (input, textarea) 클릭 시에는 컨트롤 숨기지 않음
+    const isInputField = event.target.matches('input, textarea') || event.target.closest('input, textarea');
+    if (isInputField) {
+        return;
+    }
+    
+    // 패턴 디스플레이나 예시 디스플레이 클릭은 무시
+    const isDisplayClick = event.target.closest('.pattern-display, .examples-display');
+    if (isDisplayClick) {
+        return;
+    }
+    
+    // 그 외의 모든 곳을 클릭하면 선택 해제하고 컨트롤 숨기기
+    hideTextEditorControls();
 });
+
+// 텍스트 선택 처리 (선택 완료 시 바로 툴바 활성화)
+function handleTextSelection(event) {
+    // 툴바나 컨트롤 관련 요소 클릭시 무시
+    if (event.target && (
+        event.target.closest('#text-editor-toolbar') ||
+        event.target.closest('#color-palette') ||
+        event.target.closest('#font-size-controls')
+    )) {
+        return;
+    }
+    
+    setTimeout(() => {
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        
+        if (!selectedText || selection.rangeCount === 0) {
+            // 선택이 없을 때 activeTextSelection 초기화
+            activeTextSelection = null;
+            return;
+        }
+        
+        const range = selection.getRangeAt(0);
+        let element = range.commonAncestorContainer;
+        
+        if (element.nodeType === Node.TEXT_NODE) {
+            element = element.parentElement;
+        }
+        
+        // blank-box 직접 선택 확인
+        if (element.classList && element.classList.contains('blank-box')) {
+            const patternDisplay = element.closest('.pattern-display, .examples-display');
+            
+            if (!patternDisplay) return;
+            
+            activeTextSelection = {
+                isBlankBox: true,
+                blankBoxElement: element,
+                element: patternDisplay,
+                text: '[]',
+                timestamp: Date.now()
+            };
+            
+            // blank-box에 시각적 피드백
+            element.style.outline = '2px solid #6366F1';
+            element.style.outlineOffset = '2px';
+            
+            return;
+        }
+        
+        let patternDisplay = element.closest('.pattern-display, .examples-display');
+        
+        if (!patternDisplay) {
+            return;
+        }
+        
+        // 입력 필드에서 선택한 경우 무시
+        if (patternDisplay.tagName === 'INPUT' || patternDisplay.tagName === 'TEXTAREA') {
+            return;
+        }
+        
+        activeTextSelection = {
+            range: range.cloneRange(),
+            text: selectedText,
+            element: patternDisplay,
+            startContainer: range.startContainer,
+            endContainer: range.endContainer,
+            startOffset: range.startOffset,
+            endOffset: range.endOffset,
+            timestamp: Date.now()
+        };
+        
+    }, 50);
+}
+
+// 컬러 팔레트 표시
+function showColorPalette(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    
+    if (!activeTextSelection) {
+        // 현재 브라우저 선택 상태에서 activeTextSelection 복원 시도
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && selection.toString().trim()) {
+            const range = selection.getRangeAt(0);
+            let element = range.commonAncestorContainer;
+            
+            if (element.nodeType === Node.TEXT_NODE) {
+                element = element.parentElement;
+            }
+            
+            // 편집 가능한 영역 찾기
+            let patternDisplay = element.closest('.pattern-display, .examples-display');
+            
+            if (patternDisplay) {
+                activeTextSelection = {
+                    range: range.cloneRange(),
+                    text: selection.toString().trim(),
+                    element: patternDisplay,
+                    startContainer: range.startContainer,
+                    endContainer: range.endContainer,
+                    startOffset: range.startOffset,
+                    endOffset: range.endOffset,
+                    timestamp: Date.now()
+                };
+            }
+        }
+        
+        if (!activeTextSelection) {
+            alert('텍스트를 먼저 선택해 주세요.');
+            return;
+        }
+    }
+    
+    const toolbarRect = textEditorToolbar.getBoundingClientRect();
+    colorPalette.style.left = toolbarRect.left + 'px';
+    colorPalette.style.top = (toolbarRect.top - 150) + 'px';
+    colorPalette.style.display = 'flex';
+    colorPalette.classList.add('show');
+    
+    // 폰트 컨트롤 숨기기
+    if (fontSizeControls) {
+        fontSizeControls.classList.remove('show');
+        fontSizeControls.style.display = 'none';
+    }
+}
+
+// 폰트 크기 컨트롤 표시
+function showFontSizeControls(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    
+    if (!activeTextSelection) {
+        // 현재 브라우저 선택 상태에서 activeTextSelection 복원 시도
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && selection.toString().trim()) {
+            const range = selection.getRangeAt(0);
+            let element = range.commonAncestorContainer;
+            
+            if (element.nodeType === Node.TEXT_NODE) {
+                element = element.parentElement;
+            }
+            
+            // 편집 가능한 영역 찾기
+            let patternDisplay = element.closest('.pattern-display, .examples-display');
+            
+            if (patternDisplay) {
+                activeTextSelection = {
+                    range: range.cloneRange(),
+                    text: selection.toString().trim(),
+                    element: patternDisplay,
+                    startContainer: range.startContainer,
+                    endContainer: range.endContainer,
+                    startOffset: range.startOffset,
+                    endOffset: range.endOffset,
+                    timestamp: Date.now()
+                };
+            }
+        }
+        
+        if (!activeTextSelection) {
+            alert('텍스트를 먼저 선택해 주세요.');
+            return;
+        }
+    }
+    
+    const toolbarRect = textEditorToolbar.getBoundingClientRect();
+    fontSizeControls.style.left = toolbarRect.left + 'px';
+    fontSizeControls.style.top = (toolbarRect.top - 180) + 'px';
+    fontSizeControls.style.display = 'flex';
+    fontSizeControls.classList.add('show');
+    
+    // 컬러 팔레트 숨기기
+    if (colorPalette) {
+        colorPalette.classList.remove('show');
+        colorPalette.style.display = 'none';
+    }
+    
+    // 현재 선택된 텍스트의 폰트 크기 가져오기
+    const currentSize = getCurrentFontSize();
+    const slider = document.getElementById('font-size-slider');
+    const input = document.getElementById('font-size-input');
+    
+    if (slider && input) {
+        input.value = currentSize;
+        // 슬라이더 범위 내에 있을 때만 동기화
+        if (currentSize >= 0.5 && currentSize <= 3.0) {
+            slider.value = currentSize;
+        }
+    }
+}
+
+// 현재 폰트 크기 가져오기
+function getCurrentFontSize() {
+    if (!activeTextSelection) return 1.0;
+    
+    // blank-box의 경우
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+        const blankBox = activeTextSelection.blankBoxElement;
+        if (blankBox.style.fontSize) {
+            return parseFloat(blankBox.style.fontSize.replace('em', ''));
+        }
+        return 1.0; // 기본값
+    }
+    
+    // 일반 텍스트의 경우
+    const range = activeTextSelection.range;
+    if (!range) return 1.0;
+    
+    const container = range.commonAncestorContainer;
+    const element = container.nodeType === Node.TEXT_NODE ? 
+        container.parentElement : container;
+    
+    // 현재 요소에서 폰트 크기 찾기
+    let currentElement = element;
+    while (currentElement && currentElement !== document.body) {
+        if (currentElement.style && currentElement.style.fontSize) {
+            const fontSize = currentElement.style.fontSize;
+            if (fontSize.includes('em')) {
+                return parseFloat(fontSize.replace('em', ''));
+            } else if (fontSize.includes('px')) {
+                // px을 em으로 변환 (기본 폰트 크기 16px 기준)
+                const pxValue = parseFloat(fontSize.replace('px', ''));
+                return pxValue / 16;
+            }
+        }
+        currentElement = currentElement.parentElement;
+    }
+    
+    return 1.0; // 기본값
+}
+
+// 텍스트 색상 변경
+function changeTextColor(color) {
+    if (!activeTextSelection) return;
+    
+    const colorMap = {
+        red: '#EF4444',
+        orange: '#F97316',
+        yellow: '#EAB308',
+        green: '#10B981',
+        blue: '#3B82F6',
+        indigo: '#6366F1',
+        purple: '#8B5CF6',
+        black: '#1F2937'
+    };
+    
+    // 선택 영역 복원
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(activeTextSelection.range);
+    
+    applyStyleToSelection('color', colorMap[color]);
+    
+    // 팔레트만 숨기고 툴바는 유지
+    if (colorPalette) {
+        colorPalette.classList.remove('show');
+        colorPalette.style.display = 'none';
+    }
+}
+
+function changeTextFontSize(size) {
+    if (!activeTextSelection) return;
+    
+    // 기준 폰트 크기 설정 (패턴 디스플레이의 기본 크기)
+    const BASE_FONT_SIZE = 18; // px 단위의 기준 크기
+    
+    // blank-box 처리
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+        const blankBox = activeTextSelection.blankBoxElement;
+        
+        // 원본 크기가 저장되지 않았다면 현재 크기를 원본으로 저장
+        const elementId = blankBox.getAttribute('data-element-id') || 
+            'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        blankBox.setAttribute('data-element-id', elementId);
+        
+        if (!originalFontSizes.has(elementId)) {
+            const currentSize = blankBox.style.fontSize ? 
+                parseFloat(blankBox.style.fontSize.replace('px', '')) / BASE_FONT_SIZE : 1.0;
+            originalFontSizes.set(elementId, currentSize);
+        }
+        
+        // px 단위로 절대 크기 설정
+        const pixelSize = BASE_FONT_SIZE * size;
+        blankBox.style.setProperty('font-size', `${pixelSize}px`, 'important');
+        blankBox.setAttribute('data-styled', 'true');
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        return;
+    }
+    
+    // 일반 텍스트 처리
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(activeTextSelection.range);
+    
+    // px 단위로 절대 크기 설정
+    const pixelSize = BASE_FONT_SIZE * size;
+    applyStyleToSelection('font-size', `${pixelSize}px`);
+}
+
+// 새로운 헬퍼 함수: 선택된 HTML 가져오기
+function getSelectedHtml(range) {
+    const container = document.createElement('div');
+    container.appendChild(range.cloneContents());
+    return container.innerHTML;
+}
+
+function applyStyleToTextOnly(range, property, value) {
+    // 선택 영역의 앞뒤 공백 확인
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const startOffset = range.startOffset;
+    const endOffset = range.endOffset;
+    
+    // 앞쪽 공백 확인
+    let leadingSpace = '';
+    if (startContainer.nodeType === Node.TEXT_NODE && startOffset > 0) {
+        const prevChar = startContainer.textContent.charAt(startOffset - 1);
+        if (prevChar === ' ' || prevChar === '\u00A0') {
+            leadingSpace = '&nbsp;';
+        }
+    }
+    
+    // 뒤쪽 공백 확인
+    let trailingSpace = '';
+    if (endContainer.nodeType === Node.TEXT_NODE && endOffset < endContainer.textContent.length) {
+        const nextChar = endContainer.textContent.charAt(endOffset);
+        if (nextChar === ' ' || nextChar === '\u00A0') {
+            trailingSpace = '&nbsp;';
+        }
+    }
+    
+    const extractedContent = range.extractContents();
+    
+    const span = document.createElement('span');
+    span.style.setProperty(property, value);
+    span.style.whiteSpace = 'pre-wrap';
+    span.style.verticalAlign = 'baseline';
+    span.style.display = 'inline';
+	
+    // 부모 스타일 상속
+    const targetNode = range.commonAncestorContainer.nodeType === Node.TEXT_NODE ?
+        range.commonAncestorContainer.parentElement :
+        range.commonAncestorContainer;
+    
+    let parentSpan = targetNode.closest('span:not(.blank-box)');
+    if (parentSpan) {
+        if (parentSpan.style.color && property !== 'color') {
+            span.style.color = parentSpan.style.color;
+        }
+        if (parentSpan.style.fontSize && property !== 'font-size') {
+            span.style.fontSize = parentSpan.style.fontSize;
+        }
+    }
+    
+    // 앞쪽 공백 추가
+    if (leadingSpace) {
+        const leadingSpaceElement = document.createElement('span');
+        leadingSpaceElement.innerHTML = leadingSpace;
+        leadingSpaceElement.style.whiteSpace = 'pre-wrap';
+        span.appendChild(leadingSpaceElement);
+    }
+    
+    // 텍스트 노드의 공백을 보존하며 추가
+    const childNodes = Array.from(extractedContent.childNodes);
+    childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // 공백을 &nbsp;로 변환
+            const text = preserveSpaces(node.textContent);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = text;
+            while (tempDiv.firstChild) {
+                span.appendChild(tempDiv.firstChild);
+            }
+        } else {
+            span.appendChild(node);
+        }
+    });
+    
+    // 뒤쪽 공백 추가
+    if (trailingSpace) {
+        const trailingSpaceElement = document.createElement('span');
+        trailingSpaceElement.innerHTML = trailingSpace;
+        trailingSpaceElement.style.whiteSpace = 'pre-wrap';
+        span.appendChild(trailingSpaceElement);
+    }
+    
+    range.insertNode(span);
+    
+    // activeTextSelection 업데이트
+    const newSpanRange = document.createRange();
+    newSpanRange.selectNodeContents(span);
+    activeTextSelection.range = newSpanRange;
+    activeTextSelection.text = span.textContent;
+}
+
+// 새로운 함수: 텍스트만 있는 경우 스타일 적용
+function applyStyleToSelection(property, value) {
+    if (!activeTextSelection) {
+        return;
+    }
+    
+    if (activeTextSelection.element.tagName === 'INPUT' || 
+        activeTextSelection.element.tagName === 'TEXTAREA') {
+        alert('편집 모드에서는 텍스트 스타일을 적용할 수 없습니다. 먼저 Enter를 눌러 저장한 후 시도해주세요.');
+        hideTextEditorControls();
+        return;
+    }
+    
+    // blank-box 전용 처리 (최우선)
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+        const blankBox = activeTextSelection.blankBoxElement;
+        
+        // 원본 크기 저장
+        const elementId = blankBox.getAttribute('data-element-id') || 
+            'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        blankBox.setAttribute('data-element-id', elementId);
+        
+        if (!originalFontSizes.has(elementId) && property === 'font-size') {
+            const currentSize = blankBox.style.fontSize ? 
+                parseFloat(blankBox.style.fontSize.replace('em', '')) : 1.0;
+            originalFontSizes.set(elementId, currentSize);
+        }
+        
+        // 스타일 적용
+        if (property === 'color') {
+            blankBox.style.cssText = blankBox.style.cssText.replace(/color:[^;]+;?/g, '');
+            blankBox.style.setProperty('color', value, 'important');
+            blankBox.setAttribute('data-styled', 'true');
+        } else if (property === 'font-size') {
+            blankBox.style.setProperty('font-size', value, 'important');
+            blankBox.setAttribute('data-styled', 'true');
+        }
+        
+        // 시각적 피드백 제거
+        blankBox.style.outline = '';
+        blankBox.style.outlineOffset = '';
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        
+        return;
+    }
+    
+    // 일반 텍스트 처리
+    try {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        
+        // DOM 노드가 여전히 문서에 존재하는지 확인
+        if (!document.body.contains(activeTextSelection.element)) {
+            alert('선택 영역이 더 이상 존재하지 않습니다. 다시 선택해 주세요.');
+            hideTextEditorControls();
+            return;
+        }
+        
+        // Range 복원
+        const range = activeTextSelection.range;
+        selection.addRange(range);
+        
+        // 원본 크기 저장 (font-size 변경 시)
+        if (property === 'font-size') {
+            const container = range.commonAncestorContainer;
+            const element = container.nodeType === Node.TEXT_NODE ? 
+                container.parentElement : container;
+            
+            const elementId = element.getAttribute('data-element-id') || 
+                'text-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            element.setAttribute('data-element-id', elementId);
+            
+            if (!originalFontSizes.has(elementId)) {
+                const currentSize = getCurrentFontSize();
+                originalFontSizes.set(elementId, currentSize);
+            }
+        }
+        
+        // 선택 영역이 blank-box를 포함하는지 확인
+        const selectedHtml = getSelectedHtml(range);
+        const hasBlankBox = selectedHtml.includes('blank-box');
+        
+        if (hasBlankBox) {
+            // blank-box가 포함된 경우
+            applyStyleToMixedContent(range, property, value);
+        } else {
+            // 일반 텍스트만 있는 경우
+            applyStyleToTextOnly(range, property, value);
+        }
+        
+        // 선택 해제
+        selection.removeAllRanges();
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        
+    } catch (error) {
+        console.error('스타일 적용 오류:', error);
+        alert('스타일 적용 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        hideTextEditorControls();
+    }
+}
+
+// 새로운 함수: blank-box와 텍스트가 혼재된 경우 - 안전한 방식으로 처리
+function applyStyleToMixedContent(range, property, value) {
+    // 선택된 영역의 내용을 추출
+    const fragment = range.extractContents();
+    const tempContainer = document.createElement('div');
+    tempContainer.appendChild(fragment);
+    
+    // 모든 노드를 순회하면서 처리
+    const processNode = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // 텍스트 노드가 내용이 있는 경우
+            if (node.textContent && (node.textContent.trim() || node.textContent.includes(' '))) {
+                const textSpan = document.createElement('span');
+                textSpan.style.setProperty(property, value);
+                textSpan.style.whiteSpace = 'pre-wrap';
+                textSpan.style.verticalAlign = 'baseline';
+                textSpan.style.display = 'inline';
+                textSpan.innerHTML = preserveSpaces(node.textContent);
+                return textSpan;
+            }
+            return node;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('blank-box')) {
+                // blank-box는 직접 스타일만 적용하고 그대로 반환
+                if (property === 'color') {
+                    node.style.setProperty('color', value, 'important');
+                } else if (property === 'font-size') {
+                    node.style.setProperty('font-size', value, 'important');
+                }
+                node.setAttribute('data-styled', 'true');
+                return node; // 기존 노드를 그대로 반환
+            } else if (node.tagName === 'SPAN') {
+                // 기존 span 요소는 스타일만 추가
+                node.style.setProperty(property, value);
+                node.style.whiteSpace = 'pre-wrap';
+                node.style.verticalAlign = 'baseline';
+                node.style.display = 'inline';
+                
+                // 자식 노드들도 재귀적으로 처리
+                const childNodes = Array.from(node.childNodes);
+                childNodes.forEach((childNode, index) => {
+                    const processedChild = processNode(childNode);
+                    if (processedChild !== childNode) {
+                        node.replaceChild(processedChild, childNode);
+                    }
+                });
+                return node;
+            } else {
+                // 다른 요소들은 자식 노드 처리 후 스타일 적용
+                const childNodes = Array.from(node.childNodes);
+                childNodes.forEach((childNode, index) => {
+                    const processedChild = processNode(childNode);
+                    if (processedChild !== childNode) {
+                        node.replaceChild(processedChild, childNode);
+                    }
+                });
+                node.style.setProperty(property, value);
+                return node;
+            }
+        }
+        return node;
+    };
+    
+    // 최상위 노드들 처리
+    const childNodes = Array.from(tempContainer.childNodes);
+    const processedNodes = [];
+    
+    childNodes.forEach(node => {
+        const processedNode = processNode(node);
+        processedNodes.push(processedNode);
+    });
+    
+    // DocumentFragment를 사용하여 순서 유지하면서 한번에 삽입
+    const fragmentToInsert = document.createDocumentFragment();
+    processedNodes.forEach(node => {
+        fragmentToInsert.appendChild(node);
+    });
+    
+    // 한 번에 모든 노드 삽입
+    range.insertNode(fragmentToInsert);
+    
+    // 새로운 범위 설정
+    try {
+        const newRange = document.createRange();
+        if (processedNodes.length > 0) {
+            newRange.setStartBefore(processedNodes[0]);
+            newRange.setEndAfter(processedNodes[processedNodes.length - 1]);
+        }
+        activeTextSelection.range = newRange;
+    } catch (e) {
+        // 범위 설정 실패 시 원본 범위 유지
+        activeTextSelection.range = range;
+    }
+}
+
+// clearSelection 함수도 추가
+function clearSelection() {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        selection.removeAllRanges();
+    }
+}
+
+// 완전히 새로운 함수 추가
+function preserveSpaces(text) {
+    if (!text) return '';
+    
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        if (char === ' ') {
+            // 모든 공백을 무조건 &nbsp;로 변환
+            result += '&nbsp;';
+        } else if (char === '\n') {
+            result += '<br>';
+        } else if (char === '\t') {
+            result += '&nbsp;&nbsp;&nbsp;&nbsp;';
+        } else {
+            // HTML 특수문자 이스케이프
+            if (char === '<') {
+                result += '&lt;';
+            } else if (char === '>') {
+                result += '&gt;';
+            } else if (char === '&') {
+                result += '&amp;';
+            } else {
+                result += char;
+            }
+        }
+    }
+    
+    return result;
+}
+
+// 텍스트 스타일 초기화
+function resetTextStyle() {
+    if (!activeTextSelection) return;
+    
+    // blank-box 리셋 처리
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+		const blankBox = activeTextSelection.blankBoxElement;
+		
+		// 원본 크기 저장
+		const elementId = blankBox.getAttribute('data-element-id') || 
+			'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+		blankBox.setAttribute('data-element-id', elementId);
+		
+		if (!originalFontSizes.has(elementId) && property === 'font-size') {
+			const currentSize = blankBox.style.fontSize ? 
+				parseFloat(blankBox.style.fontSize.replace('em', '')) : 1.0;
+			originalFontSizes.set(elementId, currentSize);
+		}
+		
+		// 스타일 적용 - 기존 클래스와 속성 유지
+		if (property === 'color') {
+			// 색상만 변경하고 다른 속성들은 유지
+			blankBox.style.setProperty('color', value, 'important');
+			blankBox.setAttribute('data-styled', 'true');
+			
+			// 중요: blank-box의 핵심 속성들 강제 유지
+			if (!blankBox.style.display || blankBox.style.display === 'inline') {
+				blankBox.style.setProperty('display', 'inline-flex', 'important');
+			}
+			if (!blankBox.style.alignItems) {
+				blankBox.style.setProperty('align-items', 'center', 'important');
+			}
+			if (!blankBox.style.justifyContent) {
+				blankBox.style.setProperty('justify-content', 'center', 'important');
+			}
+			
+		} else if (property === 'font-size') {
+			blankBox.style.setProperty('font-size', value, 'important');
+			blankBox.setAttribute('data-styled', 'true');
+		}
+		
+		// 시각적 피드백 제거
+		blankBox.style.outline = '';
+		blankBox.style.outlineOffset = '';
+		
+		// 패턴 데이터 업데이트
+		const patternId = getPatternIdFromElement(activeTextSelection.element);
+		if (patternId) {
+			updatePatternData(patternId);
+		}
+		
+		return;
+	}
+    
+    // 일반 텍스트 리셋 처리
+    try {
+        const range = activeTextSelection.range;
+        const container = range.commonAncestorContainer;
+        const parentElement = container.nodeType === Node.TEXT_NODE ? 
+            container.parentElement : container;
+        
+        // 선택 영역의 HTML 가져오기
+        const fragment = range.extractContents();
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(fragment);
+        
+        // 모든 스타일 제거하면서 원본 크기로 복원
+        const styledElements = tempDiv.querySelectorAll('[style]');
+        styledElements.forEach(el => {
+            if (el.classList && el.classList.contains('blank-box')) {
+                // blank-box는 원본 크기로 복원
+                const elementId = el.getAttribute('data-element-id');
+                if (elementId && originalFontSizes.has(elementId)) {
+                    const originalSize = originalFontSizes.get(elementId);
+                    el.style.cssText = '';
+                    el.style.setProperty('font-size', `${originalSize}em`, 'important');
+                } else {
+                    el.removeAttribute('style');
+                }
+                el.removeAttribute('data-styled');
+            } else if (el.tagName === 'SPAN') {
+                // 일반 span은 원본 크기로 복원 후 텍스트만 추출
+                const elementId = el.getAttribute('data-element-id');
+                if (elementId && originalFontSizes.has(elementId)) {
+                    // 원본 크기가 1.0이 아니라면 유지
+                    const originalSize = originalFontSizes.get(elementId);
+                    if (originalSize !== 1.0) {
+                        el.style.cssText = '';
+                        el.style.setProperty('font-size', `${originalSize}em`);
+                        el.removeAttribute('data-element-id');
+                    } else {
+                        // 기본 크기라면 완전 제거
+                        const textNode = document.createTextNode(el.textContent);
+                        el.parentNode.replaceChild(textNode, el);
+                    }
+                } else {
+                    // 원본 크기 정보가 없다면 텍스트만 추출
+                    const textNode = document.createTextNode(el.textContent);
+                    el.parentNode.replaceChild(textNode, el);
+                }
+            }
+        });
+        
+        // 정리된 내용을 다시 삽입
+        while (tempDiv.firstChild) {
+            range.insertNode(tempDiv.lastChild);
+        }
+        
+        // 선택 해제
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        
+        hideTextEditorControls();
+    } catch (error) {
+        console.error('스타일 초기화 오류:', error);
+        hideTextEditorControls();
+    }
+}
+
+// 패턴 ID 가져오기
+function getPatternIdFromElement(element) {
+   const patternCard = element.closest('.pattern-card');
+   if (patternCard) {
+       const id = patternCard.id.replace('pattern-', '');
+       return parseInt(id);
+   }
+   return null;
+}
+
+// 패턴 데이터 업데이트
+function updatePatternData(patternId) {
+    const pattern = patterns.find(p => p.id === patternId);
+    const displayElement = document.querySelector(`#pattern-${patternId} .pattern-display`);
+    const examplesDisplay = document.querySelector(`#pattern-${patternId} .examples-display`);
+    
+    if (pattern) {
+        if (displayElement && !displayElement.classList.contains('empty')) {
+            // HTML 저장 시 공백 보존 확인
+            let htmlContent = displayElement.innerHTML;
+            
+            // white-space 스타일이 없는 span에 추가
+            htmlContent = htmlContent.replace(/<span(?![^>]*white-space)/g, '<span style="white-space: pre-wrap;"');
+            
+            pattern.htmlContent = htmlContent;
+        }
+        if (examplesDisplay && !examplesDisplay.classList.contains('empty')) {
+            let htmlContent = examplesDisplay.innerHTML;
+            
+            // white-space 스타일이 없는 span에 추가
+            htmlContent = htmlContent.replace(/<span(?![^>]*white-space)/g, '<span style="white-space: pre-wrap;"');
+            
+            pattern.examplesHtmlContent = htmlContent;
+        }
+    }
+}
+
+// 텍스트 에디터 컨트롤 숨기기
+function hideTextEditorControls() {
+    // blank-box 시각적 피드백 제거
+    if (activeTextSelection && activeTextSelection.blankBoxElement) {
+        activeTextSelection.blankBoxElement.style.outline = '';
+        activeTextSelection.blankBoxElement.style.outlineOffset = '';
+    }
+    
+    // 컨트롤 패널만 숨기기 (툴바는 항상 고정)
+    if (colorPalette) {
+        colorPalette.classList.remove('show');
+        colorPalette.style.display = 'none';
+    }
+    if (fontSizeControls) {
+        fontSizeControls.classList.remove('show');
+        fontSizeControls.style.display = 'none';
+    }
+    
+    // 입력 필드에 포커스가 있을 때는 selection을 제거하지 않음
+    const activeElement = document.activeElement;
+    const isInputActive = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA'
+    );
+    
+    if (!isInputActive) {
+        // 현재 선택 상태 정리 (입력 필드가 활성화되지 않은 경우만)
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            selection.removeAllRanges();
+        }
+    }
+    
+    // activeTextSelection 초기화 (선택 상태 해제)
+    activeTextSelection = null;
+
+}
