@@ -1,675 +1,1080 @@
-/* ===================================
-   ENHANCED THEME SYSTEM WITH DYNAMIC BACKGROUNDS
-   =================================== */
+// text-editor.js - 텍스트 편집 및 스타일링
 
-/* Theme Selector */
-.theme-selector-wrapper {
-    position: relative;
+// 텍스트 에디터 관련 전역 변수
+let activeTextSelection = null;
+let colorPalette = null;
+let fontSizeControls = null;
+let textEditorToolbar = null;
+
+// 폰트 크기 기준값 관리를 위한 전역 변수 추가
+let originalFontSizes = new Map(); // 각 요소의 원본 폰트 크기 저장
+
+// 텍스트 에디터 초기화
+function initTextEditor() {
+    // 컬러 팔레트 생성
+    createColorPalette();
+    
+    // 폰트 크기 컨트롤 생성
+    createFontSizeControls();
+    
+    // 툴바 생성
+    createTextEditorToolbar();
+    
+    // 이벤트 리스너 추가
+    addTextEditorEventListeners();
 }
 
-.theme-selector {
-    width: 100%;
-    background: white;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-    padding-right: 40px;
+function addTextEditorEventListeners() {
+    // 마우스 다운 시 기존 선택 해제
+    document.addEventListener('mousedown', function(event) {
+        // 툴바나 컨트롤 영역이 아닌 곳을 클릭할 때만
+        if (!event.target.closest('#text-editor-toolbar') &&
+            !event.target.closest('#color-palette') &&
+            !event.target.closest('#font-size-controls')) {
+            
+            // 드래그가 시작되면 기존 activeTextSelection 초기화
+            if (activeTextSelection && !event.target.closest('.pattern-display, .examples-display')) {
+                activeTextSelection = null;
+            }
+        }
+    });
+    
+    // mouseup 이벤트로 텍스트 선택 감지 및 툴바 활성화
+    document.addEventListener('mouseup', handleTextSelection);
+    
+    // 키보드 선택도 지원 (Shift + 화살표 등)
+    document.addEventListener('keyup', handleTextSelection);
 }
 
-.theme-selector:hover {
-    border-color: var(--primary);
-}
-
-.theme-selector:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-/* Theme Preview */
-.theme-preview {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: var(--surface);
-    border-radius: 8px;
-    font-size: 0.813rem;
-    color: var(--text-secondary);
-    opacity: 0;
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
-
-.theme-preview.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.theme-color-dots {
-    display: flex;
-    gap: 4px;
-}
-
-.theme-color-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.theme-description {
-    flex: 1;
-    font-weight: 500;
-}
-
-/* Enhanced Background Pattern System */
-.bg-pattern {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.06;
-    pointer-events: none;
-    transition: all 0.6s ease;
-    border-radius: 24px;
-    overflow: hidden;
-}
-
-/* Default Theme Background */
-.bg-pattern {
-    background-image: 
-        radial-gradient(circle at 20% 80%, var(--primary) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, var(--accent) 0%, transparent 50%);
-}
-
-/* Spring Theme Backgrounds */
-.theme-spring-blossom .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 15% 85%, #FFB6C1 0%, transparent 40%),
-        radial-gradient(circle at 85% 15%, #98FB98 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, #FFC0CB 0%, transparent 60%),
-        linear-gradient(45deg, transparent 45%, rgba(255, 182, 193, 0.1) 50%, transparent 55%);
-}
-
-.theme-spring-garden .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 25% 75%, #90EE90 0%, transparent 45%),
-        radial-gradient(circle at 75% 25%, #FFE4B5 0%, transparent 45%),
-        radial-gradient(circle at 60% 80%, #98FB98 0%, transparent 35%),
-        linear-gradient(120deg, transparent 48%, rgba(144, 238, 144, 0.15) 50%, transparent 52%);
-}
-
-.theme-spring-sky .bg-pattern {
-    background-image: 
-        radial-gradient(ellipse at 30% 70%, #87CEEB 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 30%, #FFFFE0 0%, transparent 50%),
-        linear-gradient(60deg, transparent 47%, rgba(135, 206, 235, 0.12) 50%, transparent 53%),
-        radial-gradient(circle at 90% 10%, #B0E0E6 0%, transparent 25%);
-}
-
-/* Summer Theme Backgrounds */
-.theme-summer-ocean .bg-pattern {
-    background-image: 
-        radial-gradient(ellipse at 20% 80%, #40E0D0 0%, transparent 45%),
-        radial-gradient(ellipse at 80% 20%, #FFF8DC 0%, transparent 45%),
-        linear-gradient(30deg, transparent 46%, rgba(64, 224, 208, 0.15) 50%, transparent 54%),
-        radial-gradient(circle at 45% 60%, #AFEEEE 0%, transparent 30%);
-}
-
-.theme-summer-sunset .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 25% 75%, #FFA07A 0%, transparent 50%),
-        radial-gradient(circle at 75% 25%, #F0E68C 0%, transparent 50%),
-        linear-gradient(135deg, transparent 45%, rgba(255, 160, 122, 0.15) 50%, transparent 55%),
-        radial-gradient(ellipse at 90% 90%, #FFB07A 0%, transparent 25%);
-}
-
-.theme-summer-tropical .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 30% 70%, #20B2AA 0%, transparent 45%),
-        radial-gradient(circle at 70% 30%, #FFEFD5 0%, transparent 45%),
-        radial-gradient(circle at 85% 15%, #48D1CC 0%, transparent 35%),
-        linear-gradient(90deg, transparent 48%, rgba(32, 178, 170, 0.12) 50%, transparent 52%);
-}
-
-/* Autumn Theme Backgrounds */
-.theme-autumn-leaves .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 20% 80%, #DEB887 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, #F4A460 0%, transparent 50%),
-        linear-gradient(45deg, transparent 47%, rgba(222, 184, 135, 0.15) 50%, transparent 53%),
-        radial-gradient(ellipse at 10% 90%, #D2B48C 0%, transparent 30%);
-}
-
-.theme-autumn-harvest .bg-pattern {
-    background-image: 
-        radial-gradient(ellipse at 25% 75%, #CD853F 0%, transparent 45%),
-        radial-gradient(ellipse at 75% 25%, #FFE4B5 0%, transparent 45%),
-        radial-gradient(circle at 50% 85%, #DEB887 0%, transparent 35%),
-        linear-gradient(150deg, transparent 46%, rgba(205, 133, 63, 0.12) 50%, transparent 54%);
-}
-
-.theme-autumn-golden .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 30% 70%, #DAA520 0%, transparent 50%),
-        radial-gradient(circle at 70% 30%, #F5DEB3 0%, transparent 50%),
-        linear-gradient(75deg, transparent 48%, rgba(218, 165, 32, 0.15) 50%, transparent 52%),
-        radial-gradient(ellipse at 85% 85%, #FFD700 0%, transparent 25%);
-}
-
-/* Winter Theme Backgrounds */
-.theme-winter-snow .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 20% 80%, #B0E0E6 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, #E6E6FA 0%, transparent 50%),
-        radial-gradient(circle at 60% 40%, #F0F8FF 0%, transparent 40%),
-        linear-gradient(0deg, transparent 49%, rgba(176, 224, 230, 0.1) 50%, transparent 51%);
-}
-
-.theme-winter-frost .bg-pattern {
-    background-image: 
-        radial-gradient(ellipse at 25% 75%, #AFEEEE 0%, transparent 45%),
-        radial-gradient(ellipse at 75% 25%, #F5F5DC 0%, transparent 45%),
-        radial-gradient(circle at 45% 55%, #E0FFFF 0%, transparent 35%),
-        linear-gradient(30deg, transparent 48.5%, rgba(175, 238, 238, 0.12) 50%, transparent 51.5%);
-}
-
-.theme-winter-crystal .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 30% 70%, #ADD8E6 0%, transparent 50%),
-        radial-gradient(circle at 70% 30%, #E6E6FA 0%, transparent 50%),
-        linear-gradient(120deg, transparent 47%, rgba(173, 216, 230, 0.15) 50%, transparent 53%),
-        radial-gradient(ellipse at 90% 10%, #B0C4DE 0%, transparent 30%);
-}
-
-/* Special Theme Backgrounds */
-.theme-rainbow-pastel .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 20% 80%, #FFB3BA 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, #FFDFBA 0%, transparent 40%),
-        radial-gradient(circle at 60% 60%, #FFFFBA 0%, transparent 40%),
-        radial-gradient(circle at 40% 40%, #BAFFC9 0%, transparent 40%),
-        radial-gradient(circle at 80% 80%, #BAE1FF 0%, transparent 40%);
-    animation: rainbow-float 8s ease-in-out infinite alternate;
-}
-
-.theme-lavender-dreams .bg-pattern {
-    background-image: 
-        radial-gradient(ellipse at 25% 75%, #E6E6FA 0%, transparent 50%),
-        radial-gradient(ellipse at 75% 25%, #DDA0DD 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, #F8F8FF 0%, transparent 60%),
-        linear-gradient(45deg, transparent 48%, rgba(230, 230, 250, 0.15) 50%, transparent 52%);
-}
-
-.theme-mint-fresh .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 30% 70%, #98FB98 0%, transparent 45%),
-        radial-gradient(circle at 70% 30%, #AFEEEE 0%, transparent 45%),
-        radial-gradient(ellipse at 85% 15%, #F0FFF0 0%, transparent 35%),
-        linear-gradient(60deg, transparent 47%, rgba(152, 251, 152, 0.12) 50%, transparent 53%);
-}
-
-.theme-peach-cream .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 25% 75%, #FFEAA7 0%, transparent 50%),
-        radial-gradient(circle at 75% 25%, #FFE4E1 0%, transparent 50%),
-        radial-gradient(ellipse at 60% 80%, #FFF5EE 0%, transparent 40%),
-        linear-gradient(135deg, transparent 46%, rgba(255, 234, 167, 0.15) 50%, transparent 54%);
-}
-
-.theme-berry-blush .bg-pattern {
-    background-image: 
-        radial-gradient(circle at 20% 80%, #FFB6C1 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, #F0E68C 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 30%, #FFF0F5 0%, transparent 45%),
-        linear-gradient(90deg, transparent 47.5%, rgba(255, 182, 193, 0.15) 50%, transparent 52.5%);
-}
-
-/* Theme Animation */
-body {
-    transition: all 0.4s ease;
-}
-
-.container {
-    transition: all 0.4s ease;
-}
-
-.pattern-card {
-    transition: all 0.4s ease;
-}
-
-/* Rainbow Animation for Rainbow Pastel Theme */
-@keyframes rainbow-float {
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.06;
+// 컬러 팔레트 생성
+function createColorPalette() {
+    // 기존 팔레트 제거
+    if (colorPalette) {
+        colorPalette.remove();
     }
-    25% {
-        transform: translateY(-5px) rotate(1deg);
-        opacity: 0.08;
+    
+    colorPalette = document.createElement('div');
+    colorPalette.className = 'color-palette';
+    colorPalette.id = 'color-palette';
+    
+    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple', 'black'];
+    
+    colors.forEach(color => {
+        const colorOption = document.createElement('div');
+        colorOption.className = `color-option ${color}`;
+        
+        // 이벤트 리스너 추가
+        colorOption.addEventListener('click', function(e) {
+            e.stopPropagation();
+            changeTextColor(color);
+        });
+        
+        colorPalette.appendChild(colorOption);
+    });
+    
+    document.body.appendChild(colorPalette);
+}
+
+// 폰트 크기 컨트롤 생성
+function createFontSizeControls() {
+    // 기존 컨트롤 제거
+    if (fontSizeControls) {
+        fontSizeControls.remove();
     }
-    50% {
-        transform: translateY(-10px) rotate(0deg);
-        opacity: 0.06;
+    
+    fontSizeControls = document.createElement('div');
+    fontSizeControls.className = 'font-size-controls';
+    fontSizeControls.id = 'font-size-controls';
+    
+    fontSizeControls.innerHTML = `
+        <div class="font-size-input-group">
+            <label for="font-size-input" class="font-size-label">Font Size (em):</label>
+            <input type="number" class="font-size-input" id="font-size-input" 
+                   min="0.5" max="5.0" step="0.1" value="1.0" 
+                   placeholder="1.0">
+        </div>
+        <input type="range" class="font-size-slider" id="font-size-slider" 
+               min="0.5" max="3.0" step="0.1" value="1.0">
+        <div class="font-size-presets">
+            <button class="preset-btn" data-size="0.8">Small</button>
+            <button class="preset-btn" data-size="1.0">Normal</button>
+            <button class="preset-btn" data-size="1.2">Large</button>
+            <button class="preset-btn" data-size="1.5">XL</button>
+        </div>
+    `;
+    
+    document.body.appendChild(fontSizeControls);
+    
+    // 요소들 가져오기
+    const slider = document.getElementById('font-size-slider');
+    const input = document.getElementById('font-size-input');
+    const presetButtons = fontSizeControls.querySelectorAll('.preset-btn');
+    
+    // 슬라이더 이벤트
+    slider.addEventListener('input', function() {
+        const value = parseFloat(this.value);
+        input.value = value;
+        if (activeTextSelection) {
+            changeTextFontSize(value);
+        }
+    });
+    
+    // 입력 필드 이벤트
+    input.addEventListener('input', function() {
+        let value = parseFloat(this.value);
+        
+        // 값 범위 제한
+        if (value < 0.5) value = 0.5;
+        if (value > 5.0) value = 5.0;
+        
+        this.value = value;
+        
+        // 슬라이더 범위 내에서만 동기화
+        if (value >= 0.5 && value <= 3.0) {
+            slider.value = value;
+        }
+        
+        if (activeTextSelection) {
+            changeTextFontSize(value);
+        }
+    });
+    
+    // Enter 키로 적용
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.blur();
+        }
+    });
+    
+    // 프리셋 버튼 이벤트
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const size = parseFloat(this.dataset.size);
+            input.value = size;
+            slider.value = size;
+            if (activeTextSelection) {
+                changeTextFontSize(size);
+            }
+        });
+    });
+}
+
+// 텍스트 에디터 툴바 생성
+function createTextEditorToolbar() {
+    // 기존 툴바 제거
+    if (textEditorToolbar) {
+        textEditorToolbar.remove();
     }
-    75% {
-        transform: translateY(-5px) rotate(-1deg);
-        opacity: 0.08;
+    
+    textEditorToolbar = document.createElement('div');
+    textEditorToolbar.className = 'text-editor-toolbar';
+    textEditorToolbar.id = 'text-editor-toolbar';
+    
+    // 버튼들을 innerHTML로 한번에 생성
+    textEditorToolbar.innerHTML = `
+        <button class="toolbar-btn" id="toolbar-color-btn">Color</button>
+        <button class="toolbar-btn" id="toolbar-size-btn">Size</button>
+        <button class="toolbar-btn" id="toolbar-reset-btn">Reset</button>
+    `;
+    
+    document.body.appendChild(textEditorToolbar);
+    
+    // DOM에 추가된 후 바로 이벤트 리스너 등록
+    document.getElementById('toolbar-color-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        showColorPalette(e);
+    });
+    
+    document.getElementById('toolbar-size-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        showFontSizeControls(e);
+    });
+    
+    document.getElementById('toolbar-reset-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        resetTextStyle();
+    });
+}
+
+// 이벤트 리스너 추가
+document.addEventListener('click', function(event) {
+    // 텍스트 에디터 관련 요소들 확인
+    const isToolbarClick = event.target.closest('#text-editor-toolbar');
+    const isPaletteClick = event.target.closest('#color-palette');
+    const isFontControlClick = event.target.closest('#font-size-controls');
+    
+    // 텍스트 에디터 관련 요소를 클릭한 경우 아무것도 하지 않음
+    if (isToolbarClick || isPaletteClick || isFontControlClick) {
+        return;
     }
-    100% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.06;
+    
+    // 입력 필드들 (input, textarea) 클릭 시에는 컨트롤 숨기지 않음
+    const isInputField = event.target.matches('input, textarea') || event.target.closest('input, textarea');
+    if (isInputField) {
+        return;
+    }
+    
+    // 패턴 디스플레이나 예시 디스플레이 클릭은 무시
+    const isDisplayClick = event.target.closest('.pattern-display, .examples-display');
+    if (isDisplayClick) {
+        return;
+    }
+    
+    // 그 외의 모든 곳을 클릭하면 선택 해제하고 컨트롤 숨기기
+    hideTextEditorControls();
+});
+
+// 텍스트 선택 처리 (선택 완료 시 바로 툴바 활성화)
+function handleTextSelection(event) {
+    // 툴바나 컨트롤 관련 요소 클릭시 무시
+    if (event.target && (
+        event.target.closest('#text-editor-toolbar') ||
+        event.target.closest('#color-palette') ||
+        event.target.closest('#font-size-controls')
+    )) {
+        return;
+    }
+    
+    setTimeout(() => {
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        
+        if (!selectedText || selection.rangeCount === 0) {
+            // 선택이 없을 때 activeTextSelection 초기화
+            activeTextSelection = null;
+            return;
+        }
+        
+        const range = selection.getRangeAt(0);
+        let element = range.commonAncestorContainer;
+        
+        if (element.nodeType === Node.TEXT_NODE) {
+            element = element.parentElement;
+        }
+        
+        // blank-box 직접 선택 확인
+        if (element.classList && element.classList.contains('blank-box')) {
+            const patternDisplay = element.closest('.pattern-display, .examples-display');
+            
+            if (!patternDisplay) return;
+            
+            activeTextSelection = {
+                isBlankBox: true,
+                blankBoxElement: element,
+                element: patternDisplay,
+                text: '[]',
+                timestamp: Date.now()
+            };
+            
+            // blank-box에 시각적 피드백
+            element.style.outline = '2px solid #6366F1';
+            element.style.outlineOffset = '2px';
+            
+            return;
+        }
+        
+        let patternDisplay = element.closest('.pattern-display, .examples-display');
+        
+        if (!patternDisplay) {
+            return;
+        }
+        
+        // 입력 필드에서 선택한 경우 무시
+        if (patternDisplay.tagName === 'INPUT' || patternDisplay.tagName === 'TEXTAREA') {
+            return;
+        }
+        
+        activeTextSelection = {
+            range: range.cloneRange(),
+            text: selectedText,
+            element: patternDisplay,
+            startContainer: range.startContainer,
+            endContainer: range.endContainer,
+            startOffset: range.startOffset,
+            endOffset: range.endOffset,
+            timestamp: Date.now()
+        };
+        
+    }, 50);
+}
+
+// 컬러 팔레트 표시
+function showColorPalette(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    
+    if (!activeTextSelection) {
+        // 현재 브라우저 선택 상태에서 activeTextSelection 복원 시도
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && selection.toString().trim()) {
+            const range = selection.getRangeAt(0);
+            let element = range.commonAncestorContainer;
+            
+            if (element.nodeType === Node.TEXT_NODE) {
+                element = element.parentElement;
+            }
+            
+            // 편집 가능한 영역 찾기
+            let patternDisplay = element.closest('.pattern-display, .examples-display');
+            
+            if (patternDisplay) {
+                activeTextSelection = {
+                    range: range.cloneRange(),
+                    text: selection.toString().trim(),
+                    element: patternDisplay,
+                    startContainer: range.startContainer,
+                    endContainer: range.endContainer,
+                    startOffset: range.startOffset,
+                    endOffset: range.endOffset,
+                    timestamp: Date.now()
+                };
+            }
+        }
+        
+        if (!activeTextSelection) {
+            alert('텍스트를 먼저 선택해 주세요.');
+            return;
+        }
+    }
+    
+    const toolbarRect = textEditorToolbar.getBoundingClientRect();
+    colorPalette.style.left = toolbarRect.left + 'px';
+    colorPalette.style.top = (toolbarRect.top - 150) + 'px';
+    colorPalette.style.display = 'flex';
+    colorPalette.classList.add('show');
+    
+    // 폰트 컨트롤 숨기기
+    if (fontSizeControls) {
+        fontSizeControls.classList.remove('show');
+        fontSizeControls.style.display = 'none';
     }
 }
 
-/* Random Theme Button */
-.btn-theme-random {
-    background: linear-gradient(135deg, #FFB3BA 0%, #FFDFBA 25%, #FFFFBA 50%, #BAFFC9 75%, #BAE1FF 100%);
-    color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    border: none;
-    animation: rainbow-glow 3s ease-in-out infinite alternate;
-}
-
-@keyframes rainbow-glow {
-    0% {
-        box-shadow: 0 0 5px rgba(255, 179, 186, 0.5), 0 0 10px rgba(255, 179, 186, 0.3);
+// 폰트 크기 컨트롤 표시
+function showFontSizeControls(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
     }
-    25% {
-        box-shadow: 0 0 5px rgba(255, 223, 186, 0.5), 0 0 10px rgba(255, 223, 186, 0.3);
+    
+    if (!activeTextSelection) {
+        // 현재 브라우저 선택 상태에서 activeTextSelection 복원 시도
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && selection.toString().trim()) {
+            const range = selection.getRangeAt(0);
+            let element = range.commonAncestorContainer;
+            
+            if (element.nodeType === Node.TEXT_NODE) {
+                element = element.parentElement;
+            }
+            
+            // 편집 가능한 영역 찾기
+            let patternDisplay = element.closest('.pattern-display, .examples-display');
+            
+            if (patternDisplay) {
+                activeTextSelection = {
+                    range: range.cloneRange(),
+                    text: selection.toString().trim(),
+                    element: patternDisplay,
+                    startContainer: range.startContainer,
+                    endContainer: range.endContainer,
+                    startOffset: range.startOffset,
+                    endOffset: range.endOffset,
+                    timestamp: Date.now()
+                };
+            }
+        }
+        
+        if (!activeTextSelection) {
+            alert('텍스트를 먼저 선택해 주세요.');
+            return;
+        }
     }
-    50% {
-        box-shadow: 0 0 5px rgba(255, 255, 186, 0.5), 0 0 10px rgba(255, 255, 186, 0.3);
+    
+    const toolbarRect = textEditorToolbar.getBoundingClientRect();
+    fontSizeControls.style.left = toolbarRect.left + 'px';
+    fontSizeControls.style.top = (toolbarRect.top - 180) + 'px';
+    fontSizeControls.style.display = 'flex';
+    fontSizeControls.classList.add('show');
+    
+    // 컬러 팔레트 숨기기
+    if (colorPalette) {
+        colorPalette.classList.remove('show');
+        colorPalette.style.display = 'none';
     }
-    75% {
-        box-shadow: 0 0 5px rgba(186, 255, 201, 0.5), 0 0 10px rgba(186, 255, 201, 0.3);
+    
+    // 현재 선택된 텍스트의 폰트 크기 가져오기
+    const currentSize = getCurrentFontSize();
+    const slider = document.getElementById('font-size-slider');
+    const input = document.getElementById('font-size-input');
+    
+    if (slider && input) {
+        input.value = currentSize;
+        // 슬라이더 범위 내에 있을 때만 동기화
+        if (currentSize >= 0.5 && currentSize <= 3.0) {
+            slider.value = currentSize;
+        }
     }
-    100% {
-        box-shadow: 0 0 5px rgba(186, 225, 255, 0.5), 0 0 10px rgba(186, 225, 255, 0.3);
+}
+
+// 현재 폰트 크기 가져오기
+function getCurrentFontSize() {
+    if (!activeTextSelection) return 1.0;
+    
+    // blank-box의 경우
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+        const blankBox = activeTextSelection.blankBoxElement;
+        if (blankBox.style.fontSize) {
+            return parseFloat(blankBox.style.fontSize.replace('em', ''));
+        }
+        return 1.0; // 기본값
+    }
+    
+    // 일반 텍스트의 경우
+    const range = activeTextSelection.range;
+    if (!range) return 1.0;
+    
+    const container = range.commonAncestorContainer;
+    const element = container.nodeType === Node.TEXT_NODE ? 
+        container.parentElement : container;
+    
+    // 현재 요소에서 폰트 크기 찾기
+    let currentElement = element;
+    while (currentElement && currentElement !== document.body) {
+        if (currentElement.style && currentElement.style.fontSize) {
+            const fontSize = currentElement.style.fontSize;
+            if (fontSize.includes('em')) {
+                return parseFloat(fontSize.replace('em', ''));
+            } else if (fontSize.includes('px')) {
+                // px을 em으로 변환 (기본 폰트 크기 16px 기준)
+                const pxValue = parseFloat(fontSize.replace('px', ''));
+                return pxValue / 16;
+            }
+        }
+        currentElement = currentElement.parentElement;
+    }
+    
+    return 1.0; // 기본값
+}
+
+// 텍스트 색상 변경
+function changeTextColor(color) {
+    if (!activeTextSelection) return;
+    
+    const colorMap = {
+        red: '#EF4444',
+        orange: '#F97316',
+        yellow: '#EAB308',
+        green: '#10B981',
+        blue: '#3B82F6',
+        indigo: '#6366F1',
+        purple: '#8B5CF6',
+        black: '#1F2937'
+    };
+    
+    // 선택 영역 복원
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(activeTextSelection.range);
+    
+    applyStyleToSelection('color', colorMap[color]);
+    
+    // 팔레트만 숨기고 툴바는 유지
+    if (colorPalette) {
+        colorPalette.classList.remove('show');
+        colorPalette.style.display = 'none';
     }
 }
 
-.btn-theme-random:hover {
-    transform: translateY(-2px);
-    animation: rainbow-glow 1.5s ease-in-out infinite alternate;
-}
-
-/* Theme Variables */
-:root {
-    /* Default */
-    --body-bg: #F1F5F9;
-    --container-bg: white;
+function changeTextFontSize(size) {
+    if (!activeTextSelection) return;
     
-    /* Spring Themes */
-    --spring-blossom-primary: #FFB6C1;
-    --spring-blossom-secondary: #FFE4E6;
-    --spring-blossom-accent: #98FB98;
-    --spring-blossom-body-bg: #FDF2F8;
-    --spring-blossom-container-bg: #FEFCFF;
-    --spring-blossom-text: #2d1b69;
-    --spring-blossom-text-secondary: #4c1d95;
+    // 기준 폰트 크기 설정 (패턴 디스플레이의 기본 크기)
+    const BASE_FONT_SIZE = 18; // px 단위의 기준 크기
     
-    --spring-garden-primary: #90EE90;
-    --spring-garden-secondary: #F0FFF0;
-    --spring-garden-accent: #FFE4B5;
-    --spring-garden-body-bg: #F0FDF4;
-    --spring-garden-container-bg: #FDFFFE;
-    --spring-garden-text: #1f2937;
-    --spring-garden-text-secondary: #374151;
+    // blank-box 처리
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+        const blankBox = activeTextSelection.blankBoxElement;
+        
+        // 원본 크기가 저장되지 않았다면 현재 크기를 원본으로 저장
+        const elementId = blankBox.getAttribute('data-element-id') || 
+            'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        blankBox.setAttribute('data-element-id', elementId);
+        
+        if (!originalFontSizes.has(elementId)) {
+            const currentSize = blankBox.style.fontSize ? 
+                parseFloat(blankBox.style.fontSize.replace('px', '')) / BASE_FONT_SIZE : 1.0;
+            originalFontSizes.set(elementId, currentSize);
+        }
+        
+        // px 단위로 절대 크기 설정
+        const pixelSize = BASE_FONT_SIZE * size;
+        blankBox.style.setProperty('font-size', `${pixelSize}px`, 'important');
+        blankBox.setAttribute('data-styled', 'true');
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        return;
+    }
     
-    --spring-sky-primary: #87CEEB;
-    --spring-sky-secondary: #F0F8FF;
-    --spring-sky-accent: #FFFFE0;
-    --spring-sky-body-bg: #F0F9FF;
-    --spring-sky-container-bg: #FEFEFF;
-    --spring-sky-text: #1e3a8a;
-    --spring-sky-text-secondary: #3730a3;
+    // 일반 텍스트 처리
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(activeTextSelection.range);
     
-    /* Summer Themes */
-    --summer-ocean-primary: #40E0D0;
-    --summer-ocean-secondary: #E0FFFF;
-    --summer-ocean-accent: #FFF8DC;
-    --summer-ocean-body-bg: #ECFEFF;
-    --summer-ocean-container-bg: #F8FFFF;
-    --summer-ocean-text: #0f766e;
-    --summer-ocean-text-secondary: #134e4a;
+    // px 단위로 절대 크기 설정
+    const pixelSize = BASE_FONT_SIZE * size;
+    applyStyleToSelection('font-size', `${pixelSize}px`);
+}
+
+// 새로운 헬퍼 함수: 선택된 HTML 가져오기
+function getSelectedHtml(range) {
+    const container = document.createElement('div');
+    container.appendChild(range.cloneContents());
+    return container.innerHTML;
+}
+
+function applyStyleToTextOnly(range, property, value) {
+    // 선택 영역의 앞뒤 공백 확인
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const startOffset = range.startOffset;
+    const endOffset = range.endOffset;
     
-    --summer-sunset-primary: #FFA07A;
-    --summer-sunset-secondary: #FFF5EE;
-    --summer-sunset-accent: #F0E68C;
-    --summer-sunset-body-bg: #FFF7ED;
-    --summer-sunset-container-bg: #FFFEFB;
-    --summer-sunset-text: #9a3412;
-    --summer-sunset-text-secondary: #c2410c;
+    // 앞쪽 공백 확인
+    let leadingSpace = '';
+    if (startContainer.nodeType === Node.TEXT_NODE && startOffset > 0) {
+        const prevChar = startContainer.textContent.charAt(startOffset - 1);
+        if (prevChar === ' ' || prevChar === '\u00A0') {
+            leadingSpace = '&nbsp;';
+        }
+    }
     
-    --summer-tropical-primary: #20B2AA;
-    --summer-tropical-secondary: #F0FFFF;
-    --summer-tropical-accent: #FFEFD5;
-    --summer-tropical-body-bg: #F0FDFA;
-    --summer-tropical-container-bg: #FAFFFF;
-    --summer-tropical-text: #0f766e;
-    --summer-tropical-text-secondary: #115e59;
+    // 뒤쪽 공백 확인
+    let trailingSpace = '';
+    if (endContainer.nodeType === Node.TEXT_NODE && endOffset < endContainer.textContent.length) {
+        const nextChar = endContainer.textContent.charAt(endOffset);
+        if (nextChar === ' ' || nextChar === '\u00A0') {
+            trailingSpace = '&nbsp;';
+        }
+    }
     
-    /* Autumn Themes */
-    --autumn-leaves-primary: #DEB887;
-    --autumn-leaves-secondary: #FDF5E6;
-    --autumn-leaves-accent: #F4A460;
-    --autumn-leaves-body-bg: #FFFBEB;
-    --autumn-leaves-container-bg: #FFFEF8;
-    --autumn-leaves-text: #92400e;
-    --autumn-leaves-text-secondary: #a16207;
+    const extractedContent = range.extractContents();
     
-    --autumn-harvest-primary: #CD853F;
-    --autumn-harvest-secondary: #FFF8DC;
-    --autumn-harvest-accent: #FFE4B5;
-    --autumn-harvest-body-bg: #FEF3C7;
-    --autumn-harvest-container-bg: #FFFCF0;
-    --autumn-harvest-text: #92400e;
-    --autumn-harvest-text-secondary: #a16207;
+    const span = document.createElement('span');
+    span.style.setProperty(property, value);
+    span.style.whiteSpace = 'pre-wrap';
+    span.style.verticalAlign = 'baseline';
+    span.style.display = 'inline';
+	
+    // 부모 스타일 상속
+    const targetNode = range.commonAncestorContainer.nodeType === Node.TEXT_NODE ?
+        range.commonAncestorContainer.parentElement :
+        range.commonAncestorContainer;
     
-    --autumn-golden-primary: #DAA520;
-    --autumn-golden-secondary: #FFFAF0;
-    --autumn-golden-accent: #F5DEB3;
-    --autumn-golden-body-bg: #FFFBEB;
-    --autumn-golden-container-bg: #FFFEF5;
-    --autumn-golden-text: #a16207;
-    --autumn-golden-text-secondary: #d97706;
+    let parentSpan = targetNode.closest('span:not(.blank-box)');
+    if (parentSpan) {
+        if (parentSpan.style.color && property !== 'color') {
+            span.style.color = parentSpan.style.color;
+        }
+        if (parentSpan.style.fontSize && property !== 'font-size') {
+            span.style.fontSize = parentSpan.style.fontSize;
+        }
+    }
     
-    /* Winter Themes */
-    --winter-snow-primary: #B0E0E6;
-    --winter-snow-secondary: #F8F8FF;
-    --winter-snow-accent: #E6E6FA;
-    --winter-snow-body-bg: #F8FAFC;
-    --winter-snow-container-bg: #FDFDFF;
-    --winter-snow-text: #1e3a8a;
-    --winter-snow-text-secondary: #3730a3;
+    // 앞쪽 공백 추가
+    if (leadingSpace) {
+        const leadingSpaceElement = document.createElement('span');
+        leadingSpaceElement.innerHTML = leadingSpace;
+        leadingSpaceElement.style.whiteSpace = 'pre-wrap';
+        span.appendChild(leadingSpaceElement);
+    }
     
-    --winter-frost-primary: #AFEEEE;
-    --winter-frost-secondary: #F0FFFF;
-    --winter-frost-accent: #F5F5DC;
-    --winter-frost-body-bg: #ECFEFF;
-    --winter-frost-container-bg: #F8FFFF;
-    --winter-frost-text: #0f766e;
-    --winter-frost-text-secondary: #115e59;
+    // 텍스트 노드의 공백을 보존하며 추가
+    const childNodes = Array.from(extractedContent.childNodes);
+    childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // 공백을 &nbsp;로 변환
+            const text = preserveSpaces(node.textContent);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = text;
+            while (tempDiv.firstChild) {
+                span.appendChild(tempDiv.firstChild);
+            }
+        } else {
+            span.appendChild(node);
+        }
+    });
     
-    --winter-crystal-primary: #ADD8E6;
-    --winter-crystal-secondary: #F0F8FF;
-    --winter-crystal-accent: #E6E6FA;
-    --winter-crystal-body-bg: #F0F9FF;
-    --winter-crystal-container-bg: #FAFEFF;
-    --winter-crystal-text: #1e40af;
-    --winter-crystal-text-secondary: #3730a3;
+    // 뒤쪽 공백 추가
+    if (trailingSpace) {
+        const trailingSpaceElement = document.createElement('span');
+        trailingSpaceElement.innerHTML = trailingSpace;
+        trailingSpaceElement.style.whiteSpace = 'pre-wrap';
+        span.appendChild(trailingSpaceElement);
+    }
     
-    /* Special Themes */
-    --rainbow-pastel-primary: #FFB3BA;
-    --rainbow-pastel-secondary: #FFDFBA;
-    --rainbow-pastel-accent: #FFFFBA;
-    --rainbow-pastel-body-bg: #FEF7FF;
-    --rainbow-pastel-container-bg: #FFFEFF;
-    --rainbow-pastel-text: #7c2d12;
-    --rainbow-pastel-text-secondary: #9a3412;
+    range.insertNode(span);
     
-    --lavender-dreams-primary: #E6E6FA;
-    --lavender-dreams-secondary: #F8F8FF;
-    --lavender-dreams-accent: #DDA0DD;
-    --lavender-dreams-body-bg: #FAF5FF;
-    --lavender-dreams-container-bg: #FEFAFF;
-    --lavender-dreams-text: #581c87;
-    --lavender-dreams-text-secondary: #6b21a8;
+    // activeTextSelection 업데이트
+    const newSpanRange = document.createRange();
+    newSpanRange.selectNodeContents(span);
+    activeTextSelection.range = newSpanRange;
+    activeTextSelection.text = span.textContent;
+}
+
+// 새로운 함수: 텍스트만 있는 경우 스타일 적용
+function applyStyleToSelection(property, value) {
+    if (!activeTextSelection) {
+        return;
+    }
     
-    --mint-fresh-primary: #98FB98;
-    --mint-fresh-secondary: #F0FFF0;
-    --mint-fresh-accent: #AFEEEE;
-    --mint-fresh-body-bg: #ECFDF5;
-    --mint-fresh-container-bg: #F8FFFC;
-    --mint-fresh-text: #14532d;
-    --mint-fresh-text-secondary: #166534;
+    if (activeTextSelection.element.tagName === 'INPUT' || 
+        activeTextSelection.element.tagName === 'TEXTAREA') {
+        alert('편집 모드에서는 텍스트 스타일을 적용할 수 없습니다. 먼저 Enter를 눌러 저장한 후 시도해주세요.');
+        hideTextEditorControls();
+        return;
+    }
     
-    --peach-cream-primary: #FFEAA7;
-    --peach-cream-secondary: #FFF5EE;
-    --peach-cream-accent: #FFE4E1;
-    --peach-cream-body-bg: #FFFBEB;
-    --peach-cream-container-bg: #FFFEF6;
-    --peach-cream-text: #a16207;
-    --peach-cream-text-secondary: #d97706;
+    // blank-box 전용 처리 (최우선)
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+        const blankBox = activeTextSelection.blankBoxElement;
+        
+        // 원본 크기 저장
+        const elementId = blankBox.getAttribute('data-element-id') || 
+            'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        blankBox.setAttribute('data-element-id', elementId);
+        
+        if (!originalFontSizes.has(elementId) && property === 'font-size') {
+            const currentSize = blankBox.style.fontSize ? 
+                parseFloat(blankBox.style.fontSize.replace('em', '')) : 1.0;
+            originalFontSizes.set(elementId, currentSize);
+        }
+        
+        // 스타일 적용
+        if (property === 'color') {
+            blankBox.style.cssText = blankBox.style.cssText.replace(/color:[^;]+;?/g, '');
+            blankBox.style.setProperty('color', value, 'important');
+            blankBox.setAttribute('data-styled', 'true');
+        } else if (property === 'font-size') {
+            blankBox.style.setProperty('font-size', value, 'important');
+            blankBox.setAttribute('data-styled', 'true');
+        }
+        
+        // 시각적 피드백 제거
+        blankBox.style.outline = '';
+        blankBox.style.outlineOffset = '';
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        
+        return;
+    }
     
-    --berry-blush-primary: #FFB6C1;
-    --berry-blush-secondary: #FFF0F5;
-    --berry-blush-accent: #F0E68C;
-    --berry-blush-body-bg: #FDF2F8;
-    --berry-blush-container-bg: #FEFAFC;
-    --berry-blush-text: #be185d;
-    --berry-blush-text-secondary: #db2777;
+    // 일반 텍스트 처리
+    try {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        
+        // DOM 노드가 여전히 문서에 존재하는지 확인
+        if (!document.body.contains(activeTextSelection.element)) {
+            alert('선택 영역이 더 이상 존재하지 않습니다. 다시 선택해 주세요.');
+            hideTextEditorControls();
+            return;
+        }
+        
+        // Range 복원
+        const range = activeTextSelection.range;
+        selection.addRange(range);
+        
+        // 원본 크기 저장 (font-size 변경 시)
+        if (property === 'font-size') {
+            const container = range.commonAncestorContainer;
+            const element = container.nodeType === Node.TEXT_NODE ? 
+                container.parentElement : container;
+            
+            const elementId = element.getAttribute('data-element-id') || 
+                'text-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            element.setAttribute('data-element-id', elementId);
+            
+            if (!originalFontSizes.has(elementId)) {
+                const currentSize = getCurrentFontSize();
+                originalFontSizes.set(elementId, currentSize);
+            }
+        }
+        
+        // 선택 영역이 blank-box를 포함하는지 확인
+        const selectedHtml = getSelectedHtml(range);
+        const hasBlankBox = selectedHtml.includes('blank-box');
+        
+        if (hasBlankBox) {
+            // blank-box가 포함된 경우
+            applyStyleToMixedContent(range, property, value);
+        } else {
+            // 일반 텍스트만 있는 경우
+            applyStyleToTextOnly(range, property, value);
+        }
+        
+        // 선택 해제
+        selection.removeAllRanges();
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        
+    } catch (error) {
+        console.error('스타일 적용 오류:', error);
+        alert('스타일 적용 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        hideTextEditorControls();
+    }
 }
 
-/* Theme Application Classes with Text Colors */
-.theme-spring-blossom {
-    --primary: var(--spring-blossom-primary);
-    --surface: var(--spring-blossom-secondary);
-    --accent: var(--spring-blossom-accent);
-    --body-bg: var(--spring-blossom-body-bg);
-    --container-bg: var(--spring-blossom-container-bg);
-    --text: var(--spring-blossom-text);
-    --text-secondary: var(--spring-blossom-text-secondary);
+// 새로운 함수: blank-box와 텍스트가 혼재된 경우 - 안전한 방식으로 처리
+function applyStyleToMixedContent(range, property, value) {
+    // 선택된 영역의 내용을 추출
+    const fragment = range.extractContents();
+    const tempContainer = document.createElement('div');
+    tempContainer.appendChild(fragment);
+    
+    // 모든 노드를 순회하면서 처리
+    const processNode = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // 텍스트 노드가 내용이 있는 경우
+            if (node.textContent && (node.textContent.trim() || node.textContent.includes(' '))) {
+                const textSpan = document.createElement('span');
+                textSpan.style.setProperty(property, value);
+                textSpan.style.whiteSpace = 'pre-wrap';
+                textSpan.style.verticalAlign = 'baseline';
+                textSpan.style.display = 'inline';
+                textSpan.innerHTML = preserveSpaces(node.textContent);
+                return textSpan;
+            }
+            return node;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('blank-box')) {
+                // blank-box는 직접 스타일만 적용하고 그대로 반환
+                if (property === 'color') {
+                    node.style.setProperty('color', value, 'important');
+                } else if (property === 'font-size') {
+                    node.style.setProperty('font-size', value, 'important');
+                }
+                node.setAttribute('data-styled', 'true');
+                return node; // 기존 노드를 그대로 반환
+            } else if (node.tagName === 'SPAN') {
+                // 기존 span 요소는 스타일만 추가
+                node.style.setProperty(property, value);
+                node.style.whiteSpace = 'pre-wrap';
+                node.style.verticalAlign = 'baseline';
+                node.style.display = 'inline';
+                
+                // 자식 노드들도 재귀적으로 처리
+                const childNodes = Array.from(node.childNodes);
+                childNodes.forEach((childNode, index) => {
+                    const processedChild = processNode(childNode);
+                    if (processedChild !== childNode) {
+                        node.replaceChild(processedChild, childNode);
+                    }
+                });
+                return node;
+            } else {
+                // 다른 요소들은 자식 노드 처리 후 스타일 적용
+                const childNodes = Array.from(node.childNodes);
+                childNodes.forEach((childNode, index) => {
+                    const processedChild = processNode(childNode);
+                    if (processedChild !== childNode) {
+                        node.replaceChild(processedChild, childNode);
+                    }
+                });
+                node.style.setProperty(property, value);
+                return node;
+            }
+        }
+        return node;
+    };
+    
+    // 최상위 노드들 처리
+    const childNodes = Array.from(tempContainer.childNodes);
+    const processedNodes = [];
+    
+    childNodes.forEach(node => {
+        const processedNode = processNode(node);
+        processedNodes.push(processedNode);
+    });
+    
+    // DocumentFragment를 사용하여 순서 유지하면서 한번에 삽입
+    const fragmentToInsert = document.createDocumentFragment();
+    processedNodes.forEach(node => {
+        fragmentToInsert.appendChild(node);
+    });
+    
+    // 한 번에 모든 노드 삽입
+    range.insertNode(fragmentToInsert);
+    
+    // 새로운 범위 설정
+    try {
+        const newRange = document.createRange();
+        if (processedNodes.length > 0) {
+            newRange.setStartBefore(processedNodes[0]);
+            newRange.setEndAfter(processedNodes[processedNodes.length - 1]);
+        }
+        activeTextSelection.range = newRange;
+    } catch (e) {
+        // 범위 설정 실패 시 원본 범위 유지
+        activeTextSelection.range = range;
+    }
 }
 
-.theme-spring-garden {
-    --primary: var(--spring-garden-primary);
-    --surface: var(--spring-garden-secondary);
-    --accent: var(--spring-garden-accent);
-    --body-bg: var(--spring-garden-body-bg);
-    --container-bg: var(--spring-garden-container-bg);
-    --text: var(--spring-garden-text);
-    --text-secondary: var(--spring-garden-text-secondary);
+// clearSelection 함수도 추가
+function clearSelection() {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        selection.removeAllRanges();
+    }
 }
 
-.theme-spring-sky {
-    --primary: var(--spring-sky-primary);
-    --surface: var(--spring-sky-secondary);
-    --accent: var(--spring-sky-accent);
-    --body-bg: var(--spring-sky-body-bg);
-    --container-bg: var(--spring-sky-container-bg);
-    --text: var(--spring-sky-text);
-    --text-secondary: var(--spring-sky-text-secondary);
+// 완전히 새로운 함수 추가
+function preserveSpaces(text) {
+    if (!text) return '';
+    
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        if (char === ' ') {
+            // 모든 공백을 무조건 &nbsp;로 변환
+            result += '&nbsp;';
+        } else if (char === '\n') {
+            result += '<br>';
+        } else if (char === '\t') {
+            result += '&nbsp;&nbsp;&nbsp;&nbsp;';
+        } else {
+            // HTML 특수문자 이스케이프
+            if (char === '<') {
+                result += '&lt;';
+            } else if (char === '>') {
+                result += '&gt;';
+            } else if (char === '&') {
+                result += '&amp;';
+            } else {
+                result += char;
+            }
+        }
+    }
+    
+    return result;
 }
 
-.theme-summer-ocean {
-    --primary: var(--summer-ocean-primary);
-    --surface: var(--summer-ocean-secondary);
-    --accent: var(--summer-ocean-accent);
-    --body-bg: var(--summer-ocean-body-bg);
-    --container-bg: var(--summer-ocean-container-bg);
-    --text: var(--summer-ocean-text);
-    --text-secondary: var(--summer-ocean-text-secondary);
+// 텍스트 스타일 초기화
+function resetTextStyle() {
+    if (!activeTextSelection) return;
+    
+    // blank-box 리셋 처리
+    if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
+		const blankBox = activeTextSelection.blankBoxElement;
+		
+		// 원본 크기 저장
+		const elementId = blankBox.getAttribute('data-element-id') || 
+			'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+		blankBox.setAttribute('data-element-id', elementId);
+		
+		if (!originalFontSizes.has(elementId) && property === 'font-size') {
+			const currentSize = blankBox.style.fontSize ? 
+				parseFloat(blankBox.style.fontSize.replace('em', '')) : 1.0;
+			originalFontSizes.set(elementId, currentSize);
+		}
+		
+		// 스타일 적용 - 기존 클래스와 속성 유지
+		if (property === 'color') {
+			// 색상만 변경하고 다른 속성들은 유지
+			blankBox.style.setProperty('color', value, 'important');
+			blankBox.setAttribute('data-styled', 'true');
+			
+			// 중요: blank-box의 핵심 속성들 강제 유지
+			if (!blankBox.style.display || blankBox.style.display === 'inline') {
+				blankBox.style.setProperty('display', 'inline-flex', 'important');
+			}
+			if (!blankBox.style.alignItems) {
+				blankBox.style.setProperty('align-items', 'center', 'important');
+			}
+			if (!blankBox.style.justifyContent) {
+				blankBox.style.setProperty('justify-content', 'center', 'important');
+			}
+			
+		} else if (property === 'font-size') {
+			blankBox.style.setProperty('font-size', value, 'important');
+			blankBox.setAttribute('data-styled', 'true');
+		}
+		
+		// 시각적 피드백 제거
+		blankBox.style.outline = '';
+		blankBox.style.outlineOffset = '';
+		
+		// 패턴 데이터 업데이트
+		const patternId = getPatternIdFromElement(activeTextSelection.element);
+		if (patternId) {
+			updatePatternData(patternId);
+		}
+		
+		return;
+	}
+    
+    // 일반 텍스트 리셋 처리
+    try {
+        const range = activeTextSelection.range;
+        const container = range.commonAncestorContainer;
+        const parentElement = container.nodeType === Node.TEXT_NODE ? 
+            container.parentElement : container;
+        
+        // 선택 영역의 HTML 가져오기
+        const fragment = range.extractContents();
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(fragment);
+        
+        // 모든 스타일 제거하면서 원본 크기로 복원
+        const styledElements = tempDiv.querySelectorAll('[style]');
+        styledElements.forEach(el => {
+            if (el.classList && el.classList.contains('blank-box')) {
+                // blank-box는 원본 크기로 복원
+                const elementId = el.getAttribute('data-element-id');
+                if (elementId && originalFontSizes.has(elementId)) {
+                    const originalSize = originalFontSizes.get(elementId);
+                    el.style.cssText = '';
+                    el.style.setProperty('font-size', `${originalSize}em`, 'important');
+                } else {
+                    el.removeAttribute('style');
+                }
+                el.removeAttribute('data-styled');
+            } else if (el.tagName === 'SPAN') {
+                // 일반 span은 원본 크기로 복원 후 텍스트만 추출
+                const elementId = el.getAttribute('data-element-id');
+                if (elementId && originalFontSizes.has(elementId)) {
+                    // 원본 크기가 1.0이 아니라면 유지
+                    const originalSize = originalFontSizes.get(elementId);
+                    if (originalSize !== 1.0) {
+                        el.style.cssText = '';
+                        el.style.setProperty('font-size', `${originalSize}em`);
+                        el.removeAttribute('data-element-id');
+                    } else {
+                        // 기본 크기라면 완전 제거
+                        const textNode = document.createTextNode(el.textContent);
+                        el.parentNode.replaceChild(textNode, el);
+                    }
+                } else {
+                    // 원본 크기 정보가 없다면 텍스트만 추출
+                    const textNode = document.createTextNode(el.textContent);
+                    el.parentNode.replaceChild(textNode, el);
+                }
+            }
+        });
+        
+        // 정리된 내용을 다시 삽입
+        while (tempDiv.firstChild) {
+            range.insertNode(tempDiv.lastChild);
+        }
+        
+        // 선택 해제
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        
+        // 패턴 데이터 업데이트
+        const patternId = getPatternIdFromElement(activeTextSelection.element);
+        if (patternId) {
+            updatePatternData(patternId);
+        }
+        
+        hideTextEditorControls();
+    } catch (error) {
+        console.error('스타일 초기화 오류:', error);
+        hideTextEditorControls();
+    }
 }
 
-.theme-summer-sunset {
-    --primary: var(--summer-sunset-primary);
-    --surface: var(--summer-sunset-secondary);
-    --accent: var(--summer-sunset-accent);
-    --body-bg: var(--summer-sunset-body-bg);
-    --container-bg: var(--summer-sunset-container-bg);
-    --text: var(--summer-sunset-text);
-    --text-secondary: var(--summer-sunset-text-secondary);
+// 패턴 ID 가져오기
+function getPatternIdFromElement(element) {
+   const patternCard = element.closest('.pattern-card');
+   if (patternCard) {
+       const id = patternCard.id.replace('pattern-', '');
+       return parseInt(id);
+   }
+   return null;
 }
 
-.theme-summer-tropical {
-    --primary: var(--summer-tropical-primary);
-    --surface: var(--summer-tropical-secondary);
-    --accent: var(--summer-tropical-accent);
-    --body-bg: var(--summer-tropical-body-bg);
-    --container-bg: var(--summer-tropical-container-bg);
-    --text: var(--summer-tropical-text);
-    --text-secondary: var(--summer-tropical-text-secondary);
+// 패턴 데이터 업데이트
+function updatePatternData(patternId) {
+    const pattern = patterns.find(p => p.id === patternId);
+    const displayElement = document.querySelector(`#pattern-${patternId} .pattern-display`);
+    const examplesDisplay = document.querySelector(`#pattern-${patternId} .examples-display`);
+    
+    if (pattern) {
+        if (displayElement && !displayElement.classList.contains('empty')) {
+            // HTML 저장 시 공백 보존 확인
+            let htmlContent = displayElement.innerHTML;
+            
+            // white-space 스타일이 없는 span에 추가
+            htmlContent = htmlContent.replace(/<span(?![^>]*white-space)/g, '<span style="white-space: pre-wrap;"');
+            
+            pattern.htmlContent = htmlContent;
+        }
+        if (examplesDisplay && !examplesDisplay.classList.contains('empty')) {
+            let htmlContent = examplesDisplay.innerHTML;
+            
+            // white-space 스타일이 없는 span에 추가
+            htmlContent = htmlContent.replace(/<span(?![^>]*white-space)/g, '<span style="white-space: pre-wrap;"');
+            
+            pattern.examplesHtmlContent = htmlContent;
+        }
+    }
 }
 
-.theme-autumn-leaves {
-    --primary: var(--autumn-leaves-primary);
-    --surface: var(--autumn-leaves-secondary);
-    --accent: var(--autumn-leaves-accent);
-    --body-bg: var(--autumn-leaves-body-bg);
-    --container-bg: var(--autumn-leaves-container-bg);
-    --text: var(--autumn-leaves-text);
-    --text-secondary: var(--autumn-leaves-text-secondary);
-}
+// 텍스트 에디터 컨트롤 숨기기
+function hideTextEditorControls() {
+    // blank-box 시각적 피드백 제거
+    if (activeTextSelection && activeTextSelection.blankBoxElement) {
+        activeTextSelection.blankBoxElement.style.outline = '';
+        activeTextSelection.blankBoxElement.style.outlineOffset = '';
+    }
+    
+    // 컨트롤 패널만 숨기기 (툴바는 항상 고정)
+    if (colorPalette) {
+        colorPalette.classList.remove('show');
+        colorPalette.style.display = 'none';
+    }
+    if (fontSizeControls) {
+        fontSizeControls.classList.remove('show');
+        fontSizeControls.style.display = 'none';
+    }
+    
+    // 입력 필드에 포커스가 있을 때는 selection을 제거하지 않음
+    const activeElement = document.activeElement;
+    const isInputActive = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA'
+    );
+    
+    if (!isInputActive) {
+        // 현재 선택 상태 정리 (입력 필드가 활성화되지 않은 경우만)
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            selection.removeAllRanges();
+        }
+    }
+    
+    // activeTextSelection 초기화 (선택 상태 해제)
+    activeTextSelection = null;
 
-.theme-autumn-harvest {
-    --primary: var(--autumn-harvest-primary);
-    --surface: var(--autumn-harvest-secondary);
-    --accent: var(--autumn-harvest-accent);
-    --body-bg: var(--autumn-harvest-body-bg);
-    --container-bg: var(--autumn-harvest-container-bg);
-    --text: var(--autumn-harvest-text);
-    --text-secondary: var(--autumn-harvest-text-secondary);
-}
-
-.theme-autumn-golden {
-    --primary: var(--autumn-golden-primary);
-    --surface: var(--autumn-golden-secondary);
-    --accent: var(--autumn-golden-accent);
-    --body-bg: var(--autumn-golden-body-bg);
-    --container-bg: var(--autumn-golden-container-bg);
-    --text: var(--autumn-golden-text);
-    --text-secondary: var(--autumn-golden-text-secondary);
-}
-
-.theme-winter-snow {
-    --primary: var(--winter-snow-primary);
-    --surface: var(--winter-snow-secondary);
-    --accent: var(--winter-snow-accent);
-    --body-bg: var(--winter-snow-body-bg);
-    --container-bg: var(--winter-snow-container-bg);
-    --text: var(--winter-snow-text);
-    --text-secondary: var(--winter-snow-text-secondary);
-}
-
-.theme-winter-frost {
-    --primary: var(--winter-frost-primary);
-    --surface: var(--winter-frost-secondary);
-    --accent: var(--winter-frost-accent);
-    --body-bg: var(--winter-frost-body-bg);
-    --container-bg: var(--winter-frost-container-bg);
-    --text: var(--winter-frost-text);
-    --text-secondary: var(--winter-frost-text-secondary);
-}
-
-.theme-winter-crystal {
-    --primary: var(--winter-crystal-primary);
-    --surface: var(--winter-crystal-secondary);
-    --accent: var(--winter-crystal-accent);
-    --body-bg: var(--winter-crystal-body-bg);
-    --container-bg: var(--winter-crystal-container-bg);
-    --text: var(--winter-crystal-text);
-    --text-secondary: var(--winter-crystal-text-secondary);
-}
-
-.theme-rainbow-pastel {
-    --primary: var(--rainbow-pastel-primary);
-    --surface: var(--rainbow-pastel-secondary);
-    --accent: var(--rainbow-pastel-accent);
-    --body-bg: var(--rainbow-pastel-body-bg);
-    --container-bg: var(--rainbow-pastel-container-bg);
-    --text: var(--rainbow-pastel-text);
-    --text-secondary: var(--rainbow-pastel-text-secondary);
-}
-
-.theme-lavender-dreams {
-    --primary: var(--lavender-dreams-primary);
-    --surface: var(--lavender-dreams-secondary);
-    --accent: var(--lavender-dreams-accent);
-    --body-bg: var(--lavender-dreams-body-bg);
-    --container-bg: var(--lavender-dreams-container-bg);
-    --text: var(--lavender-dreams-text);
-    --text-secondary: var(--lavender-dreams-text-secondary);
-}
-
-.theme-mint-fresh {
-    --primary: var(--mint-fresh-primary);
-    --surface: var(--mint-fresh-secondary);
-    --accent: var(--mint-fresh-accent);
-    --body-bg: var(--mint-fresh-body-bg);
-    --container-bg: var(--mint-fresh-container-bg);
-    --text: var(--mint-fresh-text);
-    --text-secondary: var(--mint-fresh-text-secondary);
-}
-
-.theme-peach-cream {
-    --primary: var(--peach-cream-primary);
-    --surface: var(--peach-cream-secondary);
-    --accent: var(--peach-cream-accent);
-    --body-bg: var(--peach-cream-body-bg);
-    --container-bg: var(--peach-cream-container-bg);
-    --text: var(--peach-cream-text);
-    --text-secondary: var(--peach-cream-text-secondary);
-}
-
-.theme-berry-blush {
-    --primary: var(--berry-blush-primary);
-    --surface: var(--berry-blush-secondary);
-    --accent: var(--berry-blush-accent);
-    --body-bg: var(--berry-blush-body-bg);
-    --container-bg: var(--berry-blush-container-bg);
-    --text: var(--berry-blush-text);
-    --text-secondary: var(--berry-blush-text-secondary);
-}
-
-/* Text Color Applications - 메인 타이틀과 푸터 텍스트가 테마에 따라 변경됩니다 */
-.main-title {
-    color: var(--text) !important;
-    transition: color 0.4s ease;
-}
-
-.footer-text {
-    color: var(--text) !important;
-    transition: color 0.4s ease;
-}
-
-.footer-logo {
-    color: var(--text) !important;
-    font-weight: 700;
-    transition: color 0.4s ease;
-}
-
-.subtitle {
-    color: var(--text-secondary) !important;
-    transition: color 0.4s ease;
-}
-
-/* Additional text elements that should change with theme */
-.header h1,
-.header p,
-.pattern-card,
-.control-title,
-.control-subtitle {
-    transition: color 0.4s ease;
-}
-
-/* Additional Background Effects for Better Visual Appeal */
-.bg-pattern::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.05) 50%, transparent 55%),
-        linear-gradient(-45deg, transparent 45%, rgba(255, 255, 255, 0.03) 50%, transparent 55%);
-    pointer-events: none;
 }
