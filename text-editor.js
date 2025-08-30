@@ -971,16 +971,10 @@ function resetTextStyle() {
     if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
         const blankBox = activeTextSelection.blankBoxElement;
         
-        // 원본 크기로 복원
-        const elementId = blankBox.getAttribute('data-element-id');
-        if (elementId && originalFontSizes.has(elementId)) {
-            const originalSize = originalFontSizes.get(elementId);
-            blankBox.style.cssText = '';
-            blankBox.style.setProperty('font-size', `${originalSize * 18}px`, 'important');
-        } else {
-            blankBox.removeAttribute('style');
-        }
+        // 모든 스타일 제거
+        blankBox.removeAttribute('style');
         blankBox.removeAttribute('data-styled');
+        blankBox.removeAttribute('data-element-id');
         
         // 패턴 데이터 업데이트
         const patternId = getPatternIdFromElement(activeTextSelection.element);
@@ -988,61 +982,65 @@ function resetTextStyle() {
             updatePatternData(patternId);
         }
         
+        hideTextEditorControls();
         return;
     }
     
-    // 일반 텍스트 리셋 처리
+    // 일반 텍스트 리셋 처리 (블랭크박스 제외)
     try {
         const range = activeTextSelection.range;
-        const container = range.commonAncestorContainer;
-        const parentElement = container.nodeType === Node.TEXT_NODE ? 
-            container.parentElement : container;
         
-        // 선택 영역의 HTML 가져오기
-        const fragment = range.extractContents();
+        // 선택 영역에 블랭크박스가 포함되어 있는지 확인
+        const fragment = range.cloneContents();
         const tempDiv = document.createElement('div');
         tempDiv.appendChild(fragment);
         
-        // 모든 스타일 제거하면서 원본 크기로 복원
-        const styledElements = tempDiv.querySelectorAll('[style]');
-        styledElements.forEach(el => {
-            if (el.classList && el.classList.contains('blank-box')) {
-                // blank-box는 원본 크기로 복원
-                const elementId = el.getAttribute('data-element-id');
-                if (elementId && originalFontSizes.has(elementId)) {
-                    const originalSize = originalFontSizes.get(elementId);
-                    el.style.cssText = '';
-                    el.style.setProperty('font-size', `${originalSize * 18}px`, 'important');
-                } else {
+        const hasBlankBox = tempDiv.querySelector('.blank-box');
+        
+        if (hasBlankBox) {
+            // 블랭크박스가 포함된 경우 - 스타일만 제거
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            const extractedContent = range.extractContents();
+            const container = document.createElement('div');
+            container.appendChild(extractedContent);
+            
+            // 모든 스타일 제거하되 블랭크박스는 유지
+            container.querySelectorAll('[style]').forEach(el => {
+                if (!el.classList.contains('blank-box')) {
                     el.removeAttribute('style');
                 }
-                el.removeAttribute('data-styled');
-            } else if (el.tagName === 'SPAN') {
-                // 일반 span은 원본 크기로 복원 후 텍스트만 추출
-                const elementId = el.getAttribute('data-element-id');
-                if (elementId && originalFontSizes.has(elementId)) {
-                    // 원본 크기가 1.0이 아니라면 유지
-                    const originalSize = originalFontSizes.get(elementId);
-                    if (originalSize !== 1.0) {
-                        el.style.cssText = '';
-                        el.style.setProperty('font-size', `${originalSize}em`);
-                        el.removeAttribute('data-element-id');
-                    } else {
-                        // 기본 크기라면 완전 제거
-                        const textNode = document.createTextNode(el.textContent);
-                        el.parentNode.replaceChild(textNode, el);
+            });
+            
+            // span 태그 제거 (블랭크박스 제외)
+            container.querySelectorAll('span').forEach(span => {
+                if (!span.classList.contains('blank-box') && 
+                    !span.classList.contains('blank-text')) {
+                    const parent = span.parentNode;
+                    while (span.firstChild) {
+                        parent.insertBefore(span.firstChild, span);
                     }
-                } else {
-                    // 원본 크기 정보가 없다면 텍스트만 추출
-                    const textNode = document.createTextNode(el.textContent);
-                    el.parentNode.replaceChild(textNode, el);
+                    parent.removeChild(span);
                 }
+            });
+            
+            // 정리된 내용 다시 삽입
+            while (container.firstChild) {
+                range.insertNode(container.lastChild);
             }
-        });
-        
-        // 정리된 내용을 다시 삽입
-        while (tempDiv.firstChild) {
-            range.insertNode(tempDiv.lastChild);
+            
+        } else {
+            // 블랭크박스가 없는 경우 - 순수 텍스트로 변환
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            const extractedContent = range.extractContents();
+            const textContent = extractedContent.textContent;
+            const textNode = document.createTextNode(textContent);
+            range.insertNode(textNode);
         }
         
         // 선택 해제

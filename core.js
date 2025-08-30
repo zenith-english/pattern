@@ -331,9 +331,16 @@ function createPatternCard(pattern, number) {
 function isComplexHTML(htmlContent) {
     if (!htmlContent) return false;
     
-    // 블랭크박스가 포함된 경우 무조건 복잡한 HTML로 처리
-    if (htmlContent.includes('blank-box') || htmlContent.includes('blank-text')) {
-        return true;
+    // 블랭크박스가 포함되어 있어도 스타일이 있으면 보존
+    // data-styled 속성이나 style 속성이 있는 블랭크박스는 복잡한 HTML이 아님
+    if (htmlContent.includes('data-styled="true"') || 
+        htmlContent.includes('style=') && htmlContent.includes('blank-box')) {
+        return false; // 스타일이 적용된 블랭크박스는 보존
+    }
+    
+    // 스타일이 없는 일반 블랭크박스만 있는 경우
+    if (htmlContent.includes('blank-box') && !htmlContent.includes('style=')) {
+        return true; // 재처리 필요
     }
     
     const spanCount = (htmlContent.match(/<span/g) || []).length;
