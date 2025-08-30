@@ -76,22 +76,6 @@ function validateDateFormat(dateStr) {
     return !isNaN(date.getTime());
 }
 
-// 날짜 업데이트 - 주간으로 변경
-function updateDate() {
-    const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay()); // Sun 시작
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-    const options = { month: 'short', day: 'numeric' };
-    const startStr = startOfWeek.toLocaleDateString('en-US', options);
-    const endStr = endOfWeek.toLocaleDateString('en-US', options);
-    const year = now.getFullYear();
-
-    const badge = document.getElementById('date-badge');
-    if (badge) badge.textContent = `${startStr} - ${endStr}, ${year}`;
-}
 
 // 텍스트에서 [] 를 네모 박스로 변환 (HTML 컨텐츠 지원)
 function processBlankBoxesWithHTML(text, isTitle = false) {
@@ -683,8 +667,6 @@ async function saveAs(format) {
     }
 }
 
-// 초기화
-updateDate();
 renderPatterns();
 
 // 첫 패턴 자동 추가

@@ -9,6 +9,10 @@ let textEditorToolbar = null;
 // 폰트 크기 기준값 관리를 위한 전역 변수 추가
 let originalFontSizes = new Map(); // 각 요소의 원본 폰트 크기 저장
 
+// --- UI sync & re-entrancy guards ---
+let isSyncingFontUI = false;   // 슬라이더 <-> 입력 동기화 가드
+let isApplyingFontSize = false; // 폰트 적용 재진입 가드
+
 // 텍스트 에디터 초기화
 function initTextEditor() {
     // 컬러 팔레트 생성
@@ -141,60 +145,39 @@ function createFontSizeControls() {
     const presetButtons = fontSizeControls.querySelectorAll('.preset-btn');
     
     // 슬라이더 이벤트
-    slider.addEventListener('input', function() {
-		if (!activeTextSelection) return; // activeTextSelection이 없으면 실행하지 않음
-		
-		const value = parseFloat(this.value);
-		input.value = value;
-		changeTextFontSize(value);
-	});
+    slider.addEventListener('input', function () {
+	  if (!activeTextSelection) return;
+	  const value = parseFloat(this.value);
+	  if (Number.isNaN(value)) return;
 
-	input.addEventListener('input', function() {
-		if (!activeTextSelection) return; // activeTextSelection이 없으면 실행하지 않음
-		
-		let value = parseFloat(this.value);
-		
-		// 값 범위 제한
-		if (value < 0.5) value = 0.5;
-		if (value > 5.0) value = 5.0;
-		
-		this.value = value;
-		
-		// 슬라이더 범위 내에서만 동기화
-		if (value >= 0.5 && value <= 3.0) {
-			slider.value = value;
-		}
-		
-		changeTextFontSize(value);
+	  isSyncingFontUI = true;
+	  input.value = value;      // 여기서 input의 input 이벤트가 돌지 않게 플래그로 보호
+	  isSyncingFontUI = false;
+
+	  changeTextFontSize(value);
 	});
 		
     // 입력 필드 이벤트
-    input.addEventListener('input', function() {
-        let value = parseFloat(this.value);
-        
-        // 값 범위 제한
-        if (value < 0.5) value = 0.5;
-        if (value > 5.0) value = 5.0;
-        
-        this.value = value;
-        
-        // 슬라이더 범위 내에서만 동기화
-        if (value >= 0.5 && value <= 3.0) {
-            slider.value = value;
-        }
-        
-        if (activeTextSelection) {
-            changeTextFontSize(value);
-        }
-    });
-    
-    // Enter 키로 적용
-    input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            this.blur();
-        }
-    });
+	input.addEventListener('input', function () {
+	  if (!activeTextSelection || isSyncingFontUI) return;
+
+	  let value = parseFloat(this.value);
+	  if (Number.isNaN(value)) return;
+
+	  // 범위 클램프
+	  if (value < 0.5) value = 0.5;
+	  if (value > 5.0) value = 5.0;
+	  this.value = value;
+
+	  // 슬라이더 범위 내에서만 동기화
+	  if (value >= 0.5 && value <= 3.0) {
+		isSyncingFontUI = true;
+		slider.value = value;   // 여기서 슬라이더의 input 이벤트가 돌지 않게 플래그로 보호
+		isSyncingFontUI = false;
+	  }
+
+	  changeTextFontSize(value);
+	});
     
     // 프리셋 버튼 이벤트
     presetButtons.forEach(btn => {
@@ -333,6 +316,27 @@ function handleTextSelection(event) {
 			return;
 		}
         
+		// blank-box의 자식(예: .blank-text)을 선택했을 때도 블랭크로 처리
+		const blankAncestor = element.closest && element.closest('.blank-box');
+		if (blankAncestor) {
+		  const patternDisplay = blankAncestor.closest('.pattern-display, .examples-display');
+		  if (patternDisplay) {
+			const isEditing = !!patternDisplay.closest('.pattern-card.editing');
+			activeTextSelection = {
+			  isBlankBox: true,
+			  blankBoxElement: blankAncestor,
+			  element: patternDisplay,
+			  text: '[]',
+			  timestamp: Date.now()
+			};
+			if (isEditing) {
+			  blankAncestor.style.outline = '2px solid #6366F1';
+			  blankAncestor.style.outlineOffset = '2px';
+			}
+			return;
+		  }
+		}
+		
         let patternDisplay = element.closest('.pattern-display, .examples-display');
         
         if (!patternDisplay) {
@@ -510,7 +514,7 @@ function getCurrentFontSize() {
             } else if (fontSize.includes('px')) {
                 // px을 em으로 변환 (기본 폰트 크기 16px 기준)
                 const pxValue = parseFloat(fontSize.replace('px', ''));
-                return pxValue / 16;
+				return pxValue / 18;
             }
         }
         currentElement = currentElement.parentElement;
@@ -575,47 +579,47 @@ function changeTextColor(color) {
 }
 
 function changeTextFontSize(size) {
-    if (!activeTextSelection) return;
-    
-    // 기준 폰트 크기 설정 (패턴 디스플레이의 기본 크기)
-    const BASE_FONT_SIZE = 18; // px 단위의 기준 크기
-    
+  if (!activeTextSelection) return;
+  if (isApplyingFontSize) return;
+  isApplyingFontSize = true;
+  try {
+    const BASE_FONT_SIZE = 18;
+
     // blank-box 처리
     if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
-        const blankBox = activeTextSelection.blankBoxElement;
-        
-        // 원본 크기가 저장되지 않았다면 현재 크기를 원본으로 저장
-        const elementId = blankBox.getAttribute('data-element-id') || 
-            'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-        blankBox.setAttribute('data-element-id', elementId);
-        
-        if (!originalFontSizes.has(elementId)) {
-            const currentSize = blankBox.style.fontSize ? 
-                parseFloat(blankBox.style.fontSize.replace('px', '')) / BASE_FONT_SIZE : 1.0;
-            originalFontSizes.set(elementId, currentSize);
-        }
-        
-        // px 단위로 절대 크기 설정
-        const pixelSize = BASE_FONT_SIZE * size;
-        blankBox.style.setProperty('font-size', `${pixelSize}px`, 'important');
-        blankBox.setAttribute('data-styled', 'true');
-        
-        // 패턴 데이터 업데이트
-        const patternId = getPatternIdFromElement(activeTextSelection.element);
-        if (patternId) {
-            updatePatternData(patternId);
-        }
-        return;
+      const blankBox = activeTextSelection.blankBoxElement;
+
+      const elementId = blankBox.getAttribute('data-element-id') ||
+        'blank-box-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+      blankBox.setAttribute('data-element-id', elementId);
+
+      if (!originalFontSizes.has(elementId)) {
+        const currentSize = blankBox.style.fontSize
+          ? parseFloat(blankBox.style.fontSize.replace('px', '')) / BASE_FONT_SIZE
+          : 1.0;
+        originalFontSizes.set(elementId, currentSize);
+      }
+
+      const pixelSize = BASE_FONT_SIZE * size;
+      blankBox.style.setProperty('font-size', `${pixelSize}px`, 'important');
+      blankBox.setAttribute('data-styled', 'true');
+
+      const patternId = getPatternIdFromElement(activeTextSelection.element);
+      if (patternId) updatePatternData(patternId);
+
+      return; // 여기서 함수 종료 - 일반 텍스트 처리로 진행하지 않음
     }
-    
+
     // 일반 텍스트 처리
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(activeTextSelection.range);
-    
-    // px 단위로 절대 크기 설정
+
     const pixelSize = BASE_FONT_SIZE * size;
     applyStyleToSelection('font-size', `${pixelSize}px`);
+  } finally {
+    isApplyingFontSize = false;
+  }
 }
 
 // 새로운 헬퍼 함수: 선택된 HTML 가져오기
