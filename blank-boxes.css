@@ -86,11 +86,6 @@
 .blank-box.space-4 { width: 6.5em !important; }
 .blank-box.space-5-plus { width: 8em !important; }
 
-/* 폰트 크기 변경된 blank-box */
-.blank-box[style*="font-size"] {
-    font-size: inherit !important; /* 부모 폰트 크기 상속 */
-}
-
 /* span 내부의 blank-box 정렬 */
 span .blank-box {
     vertical-align: baseline;

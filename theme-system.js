@@ -209,6 +209,110 @@ const themes = {
             accent: '#F0E68C'
         },
         backgroundStyle: 'berry'
+    },
+
+    // Korean Holiday Themes
+    'samiljeol': {
+        name: '삼일절 (3·1절)',
+        category: 'Korean Holiday',
+        description: '대한독립만세! 태극기 빨강과 파랑',
+        colors: {
+            primary: '#CD2E3A',
+            surface: '#FFF0F0',
+            accent: '#003478'
+        },
+        backgroundStyle: 'patriotic'
+    },
+    'gwangbokjeol': {
+        name: '광복절 (8·15)',
+        category: 'Korean Holiday',
+        description: '대한민국 광복 — 태극기 파랑과 빨강',
+        colors: {
+            primary: '#003478',
+            surface: '#EEF3FF',
+            accent: '#CD2E3A'
+        },
+        backgroundStyle: 'liberation'
+    },
+    'hangulnal': {
+        name: '한글날 (10·9)',
+        category: 'Korean Holiday',
+        description: '세종대왕의 한글 — 전통 먹빛과 금빛',
+        colors: {
+            primary: '#1B4B8A',
+            surface: '#FFF9EC',
+            accent: '#C8A040'
+        },
+        backgroundStyle: 'hangeul'
+    },
+
+    'chuseok': {
+        name: '추석 (한가위)',
+        category: 'Korean Holiday',
+        description: '풍성한 한가위 — 황금 달빛과 따뜻한 수확',
+        colors: {
+            primary: '#C8860A',
+            surface: '#FFF8E7',
+            accent: '#795548'
+        },
+        backgroundStyle: 'chuseok'
+    },
+    'childrenday': {
+        name: '어린이날 (5·5)',
+        category: 'Korean Holiday',
+        description: '밝고 즐거운 어린이날 — 알록달록 오렌지와 초록',
+        colors: {
+            primary: '#FF5722',
+            surface: '#FFF9F0',
+            accent: '#4CAF50'
+        },
+        backgroundStyle: 'children'
+    },
+    'parentsday': {
+        name: '어버이날 (5·8)',
+        category: 'Korean Holiday',
+        description: '감사한 어버이날 — 카네이션 핑크',
+        colors: {
+            primary: '#E91E63',
+            surface: '#FCE4EC',
+            accent: '#FF8F00'
+        },
+        backgroundStyle: 'parents'
+    },
+    'teachersday': {
+        name: '스승의날 (5·15)',
+        category: 'Korean Holiday',
+        description: '존경하는 스승의날 — 카네이션 빨강과 지성의 파랑',
+        colors: {
+            primary: '#B71C1C',
+            surface: '#FFF9C4',
+            accent: '#1565C0'
+        },
+        backgroundStyle: 'teacher'
+    },
+
+    // Holiday Themes
+    'halloween': {
+        name: '할로윈 (Oct 31)',
+        category: 'Holiday',
+        description: '으스스한 할로윈 — 호박 오렌지와 보라',
+        colors: {
+            primary: '#F97316',
+            surface: '#FFF3E0',
+            accent: '#7C3AED'
+        },
+        backgroundStyle: 'halloween'
+    },
+    'christmas': {
+        name: '크리스마스 (Dec 25)',
+        category: 'Holiday',
+        description: 'Merry Christmas — 빨강과 초록',
+        colors: {
+            primary: '#C41E3A',
+            surface: '#F0FFF4',
+            accent: '#166534'
+        },
+        backgroundStyle: 'christmas'
     }
 };
 
@@ -271,8 +375,8 @@ function applyTheme(themeKey) {
     const body = document.body;
     const bgPattern = document.querySelector('.bg-pattern');
     
-    // 기존 테마 클래스 제거
-    body.classList.forEach(cls => {
+    // 기존 테마 클래스 제거 (스냅샷 후 삭제 — 순회 중 변경 방지)
+    [...body.classList].forEach(cls => {
         if (cls.startsWith('theme-')) {
             body.classList.remove(cls);
         }
@@ -281,6 +385,14 @@ function applyTheme(themeKey) {
     // 새 테마 클래스 추가 (default 테마는 클래스 없음)
     if (themeKey !== 'default') {
         body.classList.add(`theme-${themeKey}`);
+    }
+
+    // 로고 SVG 그라디언트를 테마 색상으로 업데이트
+    const logoGradient = document.getElementById('logoGradient');
+    if (logoGradient && theme.colors) {
+        const stops = logoGradient.querySelectorAll('stop');
+        if (stops[0]) stops[0].style.stopColor = theme.colors.primary;
+        if (stops[1]) stops[1].style.stopColor = theme.colors.accent;
     }
     
     // 강제로 body 배경색 설정 (CSS 변수가 제대로 로드되지 않을 경우 대비)
@@ -304,7 +416,16 @@ function applyTheme(themeKey) {
             'lavender-dreams': '#FAF5FF',
             'mint-fresh': '#ECFDF5',
             'peach-cream': '#FFFBEB',
-            'berry-blush': '#FDF2F8'
+            'berry-blush': '#FDF2F8',
+            'samiljeol': '#FFF0F2',
+            'gwangbokjeol': '#EEF2FF',
+            'hangulnal': '#FFFBF0',
+            'chuseok': '#FFFBF0',
+            'childrenday': '#FFF9F0',
+            'parentsday': '#FFF0F5',
+            'teachersday': '#FFFDE7',
+            'halloween': '#FFF3E0',
+            'christmas': '#F0FFF4'
         };
         
         const containerBgColors = {
@@ -324,7 +445,16 @@ function applyTheme(themeKey) {
             'lavender-dreams': '#FEFAFF',
             'mint-fresh': '#F8FFFC',
             'peach-cream': '#FFFEF6',
-            'berry-blush': '#FEFAFC'
+            'berry-blush': '#FEFAFC',
+            'samiljeol': '#FFFEFE',
+            'gwangbokjeol': '#FAFAFF',
+            'hangulnal': '#FFFEF8',
+            'chuseok': '#FFFEF8',
+            'childrenday': '#FFFEF8',
+            'parentsday': '#FFFAFE',
+            'teachersday': '#FFFEF8',
+            'halloween': '#FFFCF8',
+            'christmas': '#FAFFFC'
         };
         
         const bgColor = bodyBgColors[themeKey] || '#F1F5F9';
@@ -371,7 +501,7 @@ function applyTheme(themeKey) {
 function applySpecialThemeEffects(themeKey, bgPattern) {
     // 모든 특수 효과 클래스 제거
     bgPattern.classList.remove('rainbow-animated', 'seasonal-breeze', 'sparkle-effect');
-    
+
     switch(themeKey) {
         case 'rainbow-pastel':
             bgPattern.classList.add('rainbow-animated');

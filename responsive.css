@@ -3,7 +3,7 @@
    =================================== */
 
 /* Print & Export Styles */
-@media print, screen {
+@media print {
     .calendar-btn.hide-for-export {
         display: none !important;
     }

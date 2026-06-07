@@ -5,15 +5,14 @@
 /* Pattern Grid */
 .patterns-grid {
     flex: 1;
+    min-height: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px; /* 18px에서 12px로 줄임 */
-    margin-bottom: 20px; /* 30px에서 20px로 줄임 */
+    gap: 12px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 1;
     overflow: visible;
-    max-height: calc(100% - 280px); /* 여백 조정 */
-    /* 그리드 아이템들을 균등하게 배치 */
     grid-auto-rows: 1fr;
 }
 

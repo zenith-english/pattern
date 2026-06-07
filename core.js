@@ -12,30 +12,13 @@ function escapeHTML(text) {
     return div.innerHTML;
 }
 
-// XSS 방지를 위한 입력값 검증 및 정화
-function sanitizeInput(input) {
-    if (typeof input !== 'string') return '';
-    
-    // 위험한 문자열 패턴 제거
-    const dangerousPatterns = [
-        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-        /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
-        /javascript:/gi,
-        /on\w+\s*=/gi,
-        /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,
-        /<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi,
-        /<link\b[^>]*>/gi,
-        /<meta\b[^>]*>/gi,
-        /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi
-    ];
-    
-    let sanitized = input;
-    dangerousPatterns.forEach(pattern => {
-        sanitized = sanitized.replace(pattern, '');
-    });
-    
-    // HTML 엔티티로 변환
-    return escapeHTML(sanitized).substring(0, 500); // 길이 제한도 적용
+// HTML 속성값 이스케이프 (value="..." 안에 사용)
+function escapeAttr(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 // 날짜 포맷팅 유틸리티 함수들
@@ -280,10 +263,10 @@ function createPatternCard(pattern, number) {
         
         <!-- 날짜 입력 영역 - 절대 위치로 우상단에 배치 -->
         <div class="pattern-date-section">
-            <input type="text" 
-                   class="pattern-date-input" 
+            <input type="text"
+                   class="pattern-date-input"
                    id="pattern-date-${pattern.id}"
-                   value="${pattern.date || ''}"
+                   value="${escapeAttr(pattern.date)}"
                    placeholder="YY.MM.DD (Day)"
                    onblur="saveDatePattern(${pattern.id})"
                    onkeydown="handleDateKeydown(event, ${pattern.id})">
@@ -296,11 +279,11 @@ function createPatternCard(pattern, number) {
         
         <div class="pattern-input-group">
             <div class="pattern-label">Pattern ${number}</div>
-            <input type="text" 
-                   class="pattern-input" 
+            <input type="text"
+                   class="pattern-input"
                    id="pattern-input-${pattern.id}"
                    placeholder="Enter pattern (e.g., I can [] / I love to [ ] / Have you ever [   ]?)"
-                   value="${pattern.pattern || ''}"
+                   value="${escapeAttr(pattern.pattern)}"
                    onkeydown="handlePatternKeydown(event, ${pattern.id})"
                    onblur="savePattern(${pattern.id})">
             <div class="pattern-display ${!processedPattern ? 'empty' : ''}" 
@@ -391,8 +374,7 @@ function savePattern(id) {
         
         adjustCardSize(pattern.id);
         renderPatterns();
-        
-        activeTextSelection = null;
+
         hideTextEditorControls();
     }
 }
@@ -407,17 +389,10 @@ function saveExamples(id) {
         pattern.examples = textarea.value.trim();
         // HTML 컨텐츠 초기화 (새로운 텍스트 입력 시)
         pattern.examplesHtmlContent = null;
-        
-        // activeTextSelection 임시 저장
-        const tempActiveTextSelection = activeTextSelection;
-        
+
         adjustCardSize(pattern.id);
         renderPatterns();
-        
-        // activeTextSelection 복원 불가능 (DOM 재생성으로 인해)
-        activeTextSelection = null;
-        
-        // 텍스트 에디터 컨트롤 숨기기
+
         hideTextEditorControls();
     }
 }
