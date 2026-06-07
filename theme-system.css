@@ -234,11 +234,89 @@
 }
 
 .theme-berry-blush .bg-pattern {
-    background-image: 
+    background-image:
         radial-gradient(circle at 20% 80%, #FFB6C1 0%, transparent 50%),
         radial-gradient(circle at 80% 20%, #F0E68C 0%, transparent 50%),
         radial-gradient(ellipse at 50% 30%, #FFF0F5 0%, transparent 45%),
         linear-gradient(90deg, transparent 47.5%, rgba(255, 182, 193, 0.15) 50%, transparent 52.5%);
+}
+
+/* Korean Holiday Theme Backgrounds */
+.theme-samiljeol .bg-pattern {
+    background-image:
+        radial-gradient(circle at 20% 80%, #CD2E3A 0%, transparent 45%),
+        radial-gradient(circle at 80% 20%, #003478 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #CD2E3A 0%, transparent 30%),
+        linear-gradient(45deg, transparent 47%, rgba(205, 46, 58, 0.12) 50%, transparent 53%);
+}
+
+.theme-gwangbokjeol .bg-pattern {
+    background-image:
+        radial-gradient(circle at 25% 75%, #003478 0%, transparent 45%),
+        radial-gradient(circle at 75% 25%, #CD2E3A 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.8) 0%, transparent 30%),
+        linear-gradient(135deg, transparent 47%, rgba(0, 52, 120, 0.12) 50%, transparent 53%);
+}
+
+.theme-hangulnal .bg-pattern {
+    background-image:
+        radial-gradient(circle at 20% 80%, #1B4B8A 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, #C8A040 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, #FFF9EC 0%, transparent 40%),
+        linear-gradient(45deg, transparent 48%, rgba(27, 75, 138, 0.1) 50%, transparent 52%);
+}
+
+/* Korean Holiday Theme Backgrounds — 추석/어린이날/어버이날/스승의날 */
+.theme-chuseok .bg-pattern {
+    background-image:
+        radial-gradient(circle at 50% 20%, #C8860A 0%, transparent 40%),
+        radial-gradient(circle at 20% 80%, #795548 0%, transparent 45%),
+        radial-gradient(circle at 80% 75%, #C8860A 0%, transparent 35%),
+        linear-gradient(135deg, transparent 47%, rgba(200, 134, 10, 0.1) 50%, transparent 53%);
+}
+
+.theme-childrenday .bg-pattern {
+    background-image:
+        radial-gradient(circle at 20% 80%, #FF5722 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, #4CAF50 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, #FF5722 0%, transparent 25%),
+        radial-gradient(circle at 75% 75%, #4CAF50 0%, transparent 30%),
+        linear-gradient(45deg, transparent 47%, rgba(255, 87, 34, 0.1) 50%, transparent 53%);
+}
+
+.theme-parentsday .bg-pattern {
+    background-image:
+        radial-gradient(circle at 30% 70%, #E91E63 0%, transparent 45%),
+        radial-gradient(circle at 70% 30%, #FF8F00 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #E91E63 0%, transparent 25%),
+        linear-gradient(135deg, transparent 47%, rgba(233, 30, 99, 0.1) 50%, transparent 53%);
+}
+
+.theme-teachersday .bg-pattern {
+    background-image:
+        radial-gradient(circle at 25% 75%, #B71C1C 0%, transparent 45%),
+        radial-gradient(circle at 75% 25%, #1565C0 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 10%, #FFF9C4 0%, transparent 30%),
+        linear-gradient(45deg, transparent 47%, rgba(183, 28, 28, 0.1) 50%, transparent 53%);
+}
+
+/* Holiday Theme Backgrounds */
+.theme-halloween .bg-pattern {
+    background-image:
+        radial-gradient(circle at 25% 75%, #F97316 0%, transparent 45%),
+        radial-gradient(circle at 75% 25%, #7C3AED 0%, transparent 45%),
+        radial-gradient(circle at 50% 55%, #F97316 0%, transparent 25%),
+        radial-gradient(ellipse at 10% 20%, #7C3AED 0%, transparent 30%),
+        linear-gradient(135deg, transparent 46%, rgba(249, 115, 22, 0.12) 50%, transparent 54%);
+}
+
+.theme-christmas .bg-pattern {
+    background-image:
+        radial-gradient(circle at 20% 80%, #C41E3A 0%, transparent 45%),
+        radial-gradient(circle at 80% 20%, #166534 0%, transparent 45%),
+        radial-gradient(circle at 50% 30%, #C41E3A 0%, transparent 25%),
+        radial-gradient(ellipse at 85% 85%, #166534 0%, transparent 35%),
+        linear-gradient(45deg, transparent 48%, rgba(196, 30, 58, 0.1) 50%, transparent 52%);
 }
 
 /* Theme Animation */
@@ -456,6 +534,80 @@ body {
     --berry-blush-container-bg: #FEFAFC;
     --berry-blush-text: #be185d;
     --berry-blush-text-secondary: #db2777;
+
+    /* Korean Holiday Themes */
+    --samiljeol-primary: #CD2E3A;
+    --samiljeol-secondary: #FFF0F0;
+    --samiljeol-accent: #003478;
+    --samiljeol-body-bg: #FFF0F2;
+    --samiljeol-container-bg: #FFFEFE;
+    --samiljeol-text: #7F0000;
+    --samiljeol-text-secondary: #003478;
+
+    --gwangbokjeol-primary: #003478;
+    --gwangbokjeol-secondary: #EEF3FF;
+    --gwangbokjeol-accent: #CD2E3A;
+    --gwangbokjeol-body-bg: #EEF2FF;
+    --gwangbokjeol-container-bg: #FAFAFF;
+    --gwangbokjeol-text: #1A237E;
+    --gwangbokjeol-text-secondary: #3949AB;
+
+    --hangulnal-primary: #1B4B8A;
+    --hangulnal-secondary: #FFF9EC;
+    --hangulnal-accent: #C8A040;
+    --hangulnal-body-bg: #FFFBF0;
+    --hangulnal-container-bg: #FFFEF8;
+    --hangulnal-text: #1A237E;
+    --hangulnal-text-secondary: #37474F;
+
+    --chuseok-primary: #C8860A;
+    --chuseok-secondary: #FFF8E7;
+    --chuseok-accent: #795548;
+    --chuseok-body-bg: #FFFBF0;
+    --chuseok-container-bg: #FFFEF8;
+    --chuseok-text: #4E342E;
+    --chuseok-text-secondary: #6D4C41;
+
+    --childrenday-primary: #FF5722;
+    --childrenday-secondary: #FFF9F0;
+    --childrenday-accent: #4CAF50;
+    --childrenday-body-bg: #FFF9F0;
+    --childrenday-container-bg: #FFFEF8;
+    --childrenday-text: #BF360C;
+    --childrenday-text-secondary: #D84315;
+
+    --parentsday-primary: #E91E63;
+    --parentsday-secondary: #FCE4EC;
+    --parentsday-accent: #FF8F00;
+    --parentsday-body-bg: #FFF0F5;
+    --parentsday-container-bg: #FFFAFE;
+    --parentsday-text: #880E4F;
+    --parentsday-text-secondary: #AD1457;
+
+    --teachersday-primary: #B71C1C;
+    --teachersday-secondary: #FFF9C4;
+    --teachersday-accent: #1565C0;
+    --teachersday-body-bg: #FFFDE7;
+    --teachersday-container-bg: #FFFEF8;
+    --teachersday-text: #1A237E;
+    --teachersday-text-secondary: #283593;
+
+    /* Holiday Themes */
+    --halloween-primary: #F97316;
+    --halloween-secondary: #FFF3E0;
+    --halloween-accent: #7C3AED;
+    --halloween-body-bg: #FFF3E0;
+    --halloween-container-bg: #FFFCF8;
+    --halloween-text: #7C2D12;
+    --halloween-text-secondary: #9A3412;
+
+    --christmas-primary: #C41E3A;
+    --christmas-secondary: #F0FFF4;
+    --christmas-accent: #166534;
+    --christmas-body-bg: #F0FFF4;
+    --christmas-container-bg: #FAFFFC;
+    --christmas-text: #14532D;
+    --christmas-text-secondary: #15803D;
 }
 
 /* Theme Application Classes with Text Colors */
@@ -627,6 +779,116 @@ body {
     --container-bg: var(--berry-blush-container-bg);
     --text: var(--berry-blush-text);
     --text-secondary: var(--berry-blush-text-secondary);
+}
+
+.theme-samiljeol {
+    --primary: var(--samiljeol-primary);
+    --surface: var(--samiljeol-secondary);
+    --accent: var(--samiljeol-accent);
+    --body-bg: var(--samiljeol-body-bg);
+    --container-bg: var(--samiljeol-container-bg);
+    --text: var(--samiljeol-text);
+    --text-secondary: var(--samiljeol-text-secondary);
+}
+
+.theme-gwangbokjeol {
+    --primary: var(--gwangbokjeol-primary);
+    --surface: var(--gwangbokjeol-secondary);
+    --accent: var(--gwangbokjeol-accent);
+    --body-bg: var(--gwangbokjeol-body-bg);
+    --container-bg: var(--gwangbokjeol-container-bg);
+    --text: var(--gwangbokjeol-text);
+    --text-secondary: var(--gwangbokjeol-text-secondary);
+}
+
+.theme-hangulnal {
+    --primary: var(--hangulnal-primary);
+    --surface: var(--hangulnal-secondary);
+    --accent: var(--hangulnal-accent);
+    --body-bg: var(--hangulnal-body-bg);
+    --container-bg: var(--hangulnal-container-bg);
+    --text: var(--hangulnal-text);
+    --text-secondary: var(--hangulnal-text-secondary);
+}
+
+.theme-chuseok {
+    --primary: var(--chuseok-primary);
+    --surface: var(--chuseok-secondary);
+    --accent: var(--chuseok-accent);
+    --body-bg: var(--chuseok-body-bg);
+    --container-bg: var(--chuseok-container-bg);
+    --text: var(--chuseok-text);
+    --text-secondary: var(--chuseok-text-secondary);
+}
+
+.theme-childrenday {
+    --primary: var(--childrenday-primary);
+    --surface: var(--childrenday-secondary);
+    --accent: var(--childrenday-accent);
+    --body-bg: var(--childrenday-body-bg);
+    --container-bg: var(--childrenday-container-bg);
+    --text: var(--childrenday-text);
+    --text-secondary: var(--childrenday-text-secondary);
+}
+
+.theme-parentsday {
+    --primary: var(--parentsday-primary);
+    --surface: var(--parentsday-secondary);
+    --accent: var(--parentsday-accent);
+    --body-bg: var(--parentsday-body-bg);
+    --container-bg: var(--parentsday-container-bg);
+    --text: var(--parentsday-text);
+    --text-secondary: var(--parentsday-text-secondary);
+}
+
+.theme-teachersday {
+    --primary: var(--teachersday-primary);
+    --surface: var(--teachersday-secondary);
+    --accent: var(--teachersday-accent);
+    --body-bg: var(--teachersday-body-bg);
+    --container-bg: var(--teachersday-container-bg);
+    --text: var(--teachersday-text);
+    --text-secondary: var(--teachersday-text-secondary);
+}
+
+.theme-halloween {
+    --primary: var(--halloween-primary);
+    --surface: var(--halloween-secondary);
+    --accent: var(--halloween-accent);
+    --body-bg: var(--halloween-body-bg);
+    --container-bg: var(--halloween-container-bg);
+    --text: var(--halloween-text);
+    --text-secondary: var(--halloween-text-secondary);
+}
+
+.theme-christmas {
+    --primary: var(--christmas-primary);
+    --surface: var(--christmas-secondary);
+    --accent: var(--christmas-accent);
+    --body-bg: var(--christmas-body-bg);
+    --container-bg: var(--christmas-container-bg);
+    --text: var(--christmas-text);
+    --text-secondary: var(--christmas-text-secondary);
+}
+
+/* ===================================
+   테마 적용 시 포스터 출력물 스타일
+   =================================== */
+
+/* 테마 활성화 시 패턴 카드 상단 컬러 스트립 항상 표시 */
+body[class*="theme-"] .pattern-card::before {
+    transform: scaleX(1);
+}
+
+/* 테마 배경 패턴 투명도 높임 (출력물에 색감이 보이도록) */
+body[class*="theme-"] .bg-pattern {
+    opacity: 0.12 !important;
+}
+
+/* 테마 활성화 시 패턴 카드 테두리 색상 */
+body[class*="theme-"] .pattern-card {
+    border-color: var(--primary);
+    border-width: 1.5px;
 }
 
 /* Text Color Applications - 메인 타이틀과 푸터 텍스트가 테마에 따라 변경됩니다 */

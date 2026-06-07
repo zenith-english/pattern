@@ -12,6 +12,8 @@ let originalFontSizes = new Map(); // 각 요소의 원본 폰트 크기 저장
 // --- UI sync & re-entrancy guards ---
 let isSyncingFontUI = false;   // 슬라이더 <-> 입력 동기화 가드
 let isApplyingFontSize = false; // 폰트 적용 재진입 가드
+let eventListenersAdded = false;   // 이벤트 리스너 중복 등록 방지
+let dragSelectionAdded = false;    // 드래그 선택 리스너 중복 등록 방지
 
 // 텍스트 에디터 초기화
 function initTextEditor() {
@@ -29,9 +31,12 @@ function initTextEditor() {
 }
 
 function addTextEditorEventListeners() {
+    if (eventListenersAdded) return;
+    eventListenersAdded = true;
+
     // 커스텀 드래그 기능 초기화
     initCustomDragSelection();
-    
+
     // 블랭크박스 전용 클릭 이벤트 리스너 추가
     document.addEventListener('click', function(event) {
 		const blankBox = event.target.closest('.blank-box');
@@ -491,7 +496,12 @@ function getCurrentFontSize() {
     if (activeTextSelection.isBlankBox && activeTextSelection.blankBoxElement) {
         const blankBox = activeTextSelection.blankBoxElement;
         if (blankBox.style.fontSize) {
-            return parseFloat(blankBox.style.fontSize.replace('em', ''));
+            const fontSize = blankBox.style.fontSize;
+            if (fontSize.includes('em')) {
+                return parseFloat(fontSize);
+            } else if (fontSize.includes('px')) {
+                return parseFloat(fontSize) / 18;
+            }
         }
         return 1.0; // 기본값
     }
@@ -706,8 +716,10 @@ function applyStyleToSelection(property, value) {
         blankBox.setAttribute('data-element-id', elementId);
         
         if (!originalFontSizes.has(elementId) && property === 'font-size') {
-            const currentSize = blankBox.style.fontSize ? 
-                parseFloat(blankBox.style.fontSize.replace('em', '')) : 1.0;
+            const fontSize = blankBox.style.fontSize;
+            const currentSize = fontSize
+                ? (fontSize.includes('em') ? parseFloat(fontSize) : parseFloat(fontSize) / 18)
+                : 1.0;
             originalFontSizes.set(elementId, currentSize);
         }
         
@@ -1026,10 +1038,12 @@ function resetTextStyle() {
                 }
             });
             
-            // 정리된 내용 다시 삽입
+            // 정리된 내용 다시 삽입 (fragment로 묶어 한 번에 삽입 — 순서 보장)
+            const cleanFragment = document.createDocumentFragment();
             while (container.firstChild) {
-                range.insertNode(container.lastChild);
+                cleanFragment.appendChild(container.firstChild);
             }
+            range.insertNode(cleanFragment);
             
         } else {
             // 블랭크박스가 없는 경우 - 순수 텍스트로 변환
@@ -1166,10 +1180,13 @@ function hideTextEditorControls() {
 
 // 커스텀 드래그 선택 기능 초기화
 function initCustomDragSelection() {
+    if (dragSelectionAdded) return;
+    dragSelectionAdded = true;
+
     let isSelecting = false;
     let startX, startY;
     let currentElement = null;
-    
+
     // 패턴/예시 디스플레이에만 적용
     document.addEventListener('mousedown', function(e) {
         const target = e.target.closest('.pattern-display, .examples-display');
