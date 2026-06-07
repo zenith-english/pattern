@@ -875,11 +875,6 @@ body {
    테마 적용 시 포스터 출력물 스타일
    =================================== */
 
-/* 테마 활성화 시 패턴 카드 상단 컬러 스트립 항상 표시 */
-body[class*="theme-"] .pattern-card::before {
-    transform: scaleX(1);
-}
-
 /* 테마 배경 패턴 투명도 높임 (출력물에 색감이 보이도록) */
 body[class*="theme-"] .bg-pattern {
     opacity: 0.12 !important;
