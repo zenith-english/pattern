@@ -319,9 +319,30 @@ const themes = {
 // 현재 활성 테마
 let currentTheme = 'default';
 
+// 배경 패턴 투명도 (기본 테마 / 색상 테마 — 출력물에 색감이 보이도록 테마는 더 진하게)
+const DEFAULT_BG_OPACITY = '0.06';
+const THEME_BG_OPACITY = '0.12';
+
+// 월별 기념일 테마 (계절 테마 버튼에 함께 포함)
+const HOLIDAY_THEMES_BY_MONTH = {
+    10: ['halloween'],
+    12: ['christmas']
+};
+
 // 테마 시스템 초기화
 function initThemeSystem() {
     createThemeSelector();
+
+    // 셀렉터 변경 리스너 — 한 번만 등록 (createThemeSelector 재호출 시 중복 방지)
+    const selector = document.getElementById('theme-selector');
+    if (selector) {
+        selector.addEventListener('change', function() {
+            if (this.value) {
+                applyTheme(this.value);
+            }
+        });
+    }
+
     updateThemePreview();
     addBackgroundAnimations();
 }
@@ -357,13 +378,9 @@ function createThemeSelector() {
         
         selector.appendChild(optgroup);
     });
-    
-    // 이벤트 리스너 추가
-    selector.addEventListener('change', function() {
-        if (this.value) {
-            applyTheme(this.value);
-        }
-    });
+
+    // 현재 테마 선택 상태 유지
+    selector.value = currentTheme === 'default' ? '' : currentTheme;
 }
 
 // 테마 적용 함수 (강화된 배경 효과 포함)
@@ -395,95 +412,29 @@ function applyTheme(themeKey) {
         if (stops[1]) stops[1].style.stopColor = theme.colors.accent;
     }
     
-    // 강제로 body 배경색 설정 (CSS 변수가 제대로 로드되지 않을 경우 대비)
-    const themeData = themes[themeKey];
-    if (themeData && themeData.colors) {
-        // 테마별 배경색 직접 설정
-        const bodyBgColors = {
-            'spring-blossom': '#FDF2F8',
-            'spring-garden': '#F0FDF4',
-            'spring-sky': '#F0F9FF',
-            'summer-ocean': '#ECFEFF',
-            'summer-sunset': '#FFF7ED',
-            'summer-tropical': '#F0FDFA',
-            'autumn-leaves': '#FFFBEB',
-            'autumn-harvest': '#FEF3C7',
-            'autumn-golden': '#FFFBEB',
-            'winter-snow': '#F8FAFC',
-            'winter-frost': '#ECFEFF',
-            'winter-crystal': '#F0F9FF',
-            'rainbow-pastel': '#FEF7FF',
-            'lavender-dreams': '#FAF5FF',
-            'mint-fresh': '#ECFDF5',
-            'peach-cream': '#FFFBEB',
-            'berry-blush': '#FDF2F8',
-            'samiljeol': '#FFF0F2',
-            'gwangbokjeol': '#EEF2FF',
-            'hangulnal': '#FFFBF0',
-            'chuseok': '#FFFBF0',
-            'childrenday': '#FFF9F0',
-            'parentsday': '#FFF0F5',
-            'teachersday': '#FFFDE7',
-            'halloween': '#FFF3E0',
-            'christmas': '#F0FFF4'
-        };
-        
-        const containerBgColors = {
-            'spring-blossom': '#FEFCFF',
-            'spring-garden': '#FDFFFE',
-            'spring-sky': '#FEFEFF',
-            'summer-ocean': '#F8FFFF',
-            'summer-sunset': '#FFFEFB',
-            'summer-tropical': '#FAFFFF',
-            'autumn-leaves': '#FFFEF8',
-            'autumn-harvest': '#FFFCF0',
-            'autumn-golden': '#FFFEF5',
-            'winter-snow': '#FDFDFF',
-            'winter-frost': '#F8FFFF',
-            'winter-crystal': '#FAFEFF',
-            'rainbow-pastel': '#FFFEFF',
-            'lavender-dreams': '#FEFAFF',
-            'mint-fresh': '#F8FFFC',
-            'peach-cream': '#FFFEF6',
-            'berry-blush': '#FEFAFC',
-            'samiljeol': '#FFFEFE',
-            'gwangbokjeol': '#FAFAFF',
-            'hangulnal': '#FFFEF8',
-            'chuseok': '#FFFEF8',
-            'childrenday': '#FFFEF8',
-            'parentsday': '#FFFAFE',
-            'teachersday': '#FFFEF8',
-            'halloween': '#FFFCF8',
-            'christmas': '#FAFFFC'
-        };
-        
-        const bgColor = bodyBgColors[themeKey] || '#F1F5F9';
-        const containerBg = containerBgColors[themeKey] || 'white';
-        
-        body.style.backgroundColor = bgColor;
-        
-        // 포스터 컨테이너 배경색도 강제 설정
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.setProperty('background-color', containerBg, 'important');
-        }
-    } else {
-        body.style.backgroundColor = '#F1F5F9';
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.setProperty('background-color', 'white', 'important');
-        }
+    // 배경색은 theme-system.css 의 CSS 변수(--body-bg / --container-bg)를 단일 소스로 사용
+    const rootStyle = getComputedStyle(body);
+    const bgColor = rootStyle.getPropertyValue('--body-bg').trim() || '#F1F5F9';
+    const containerBg = rootStyle.getPropertyValue('--container-bg').trim() || 'white';
+    
+    body.style.backgroundColor = bgColor;
+    
+    // 포스터 컨테이너 배경색도 강제 설정 (다른 규칙에 덮이지 않도록)
+    const container = document.querySelector('.container');
+    if (container) {
+        container.style.setProperty('background-color', containerBg, 'important');
     }
     
     // 배경 애니메이션 효과 추가
     if (bgPattern) {
-        // 배경 전환 애니메이션
+        // 배경 전환 애니메이션 (0 → 테마별 목표 투명도로 페이드인)
+        const targetOpacity = themeKey === 'default' ? DEFAULT_BG_OPACITY : THEME_BG_OPACITY;
         bgPattern.style.opacity = '0';
         bgPattern.style.transform = 'scale(1.05)';
         
         setTimeout(() => {
             bgPattern.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-            bgPattern.style.opacity = '0.06';
+            bgPattern.style.opacity = targetOpacity;
             bgPattern.style.transform = 'scale(1)';
             
             // 특별한 테마별 효과
@@ -547,9 +498,9 @@ function addBackgroundAnimations() {
             }
             
             @keyframes sparkle-shimmer {
-                0% { opacity: 0.06; transform: scale(1); }
-                50% { opacity: 0.1; transform: scale(1.02); }
-                100% { opacity: 0.06; transform: scale(1); }
+                0% { opacity: ${THEME_BG_OPACITY}; transform: scale(1); }
+                50% { opacity: 0.16; transform: scale(1.02); }
+                100% { opacity: ${THEME_BG_OPACITY}; transform: scale(1); }
             }
         `;
         document.head.appendChild(style);
@@ -620,6 +571,10 @@ function applySeasonalTheme() {
         seasonName = '겨울';
     }
     
+    // 이달의 기념일 테마 추가 (10월 할로윈, 12월 크리스마스)
+    const holidayThemes = HOLIDAY_THEMES_BY_MONTH[currentMonth] || [];
+    seasonalThemes.push(...holidayThemes.filter(key => themes[key]));
+
     // 계절 테마가 없으면 모든 테마에서 선택
     if (seasonalThemes.length === 0) {
         seasonalThemes = Object.keys(themes);
@@ -655,7 +610,7 @@ function applySeasonalTheme() {
     }
     
     const theme = themes[randomKey];
-    showThemeNotification(`${getSeasonEmoji(seasonName)} ${seasonName} 테마: ${theme.name}이 적용되었습니다!`);
+    showThemeNotification(`${getSeasonEmoji(seasonName)} ${seasonName} 테마 적용: ${theme.name}`);
 }
 
 // 계절별 이모지 반환
